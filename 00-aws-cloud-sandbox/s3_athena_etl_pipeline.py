@@ -5,21 +5,17 @@ Demonstrates end-to-end cloud data pipeline execution:
 1. Programmatic raw file upload to Amazon S3 data lake using boto3.
 2. Automated DDL generation for Amazon Athena external table creation.
 3. Execution of analytical SQL queries using CTEs and Window Functions via PyAthena.
-
-Dataset: Kaggle / UCI Bank Marketing Campaign Dataset (Checking & Deposit Accounts)
 """
 
 import os
-import time
+from pathlib import Path
 import pandas as pd
 import boto3
 from pyathena import connect
 
-# ------------------------------------------------------------------------------
-# 1. AWS CONFIGURATION & S3 STAGING PARAMETERS
-# ------------------------------------------------------------------------------
-AWS_REGION = "us-east-1"
-S3_BUCKET_NAME = "sue-furst-analytics-sandbox"
+# Configuration from Environment Variables with Fallbacks
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "sue-furst-analytics-sandbox")
 S3_RAW_PREFIX = "raw/bank_marketing_data/"
 S3_ATHENA_RESULTS_PREFIX = "athena_query_results/"
 
@@ -27,13 +23,8 @@ S3_ATHENA_RESULTS_PREFIX = "athena_query_results/"
 s3_client = boto3.client("s3", region_name=AWS_REGION)
 
 
-# ------------------------------------------------------------------------------
-# 2. RAW S3 INGESTION FUNCTION (boto3)
-# ------------------------------------------------------------------------------
-def upload_raw_dataset_to_s3(local_file_path: str, bucket_name: str, s3_key: str):
-    """
-    Uploads local financial analytics dataset (CSV) to AWS S3 raw staging bucket.
-    """
+def upload_raw_dataset_to_s3(local_file_path: str, bucket_name: str, s3_key: str) -> None:
+    """Uploads local financial analytics dataset (CSV) to AWS S3 raw staging bucket."""
     print(f"[INFO] Initiating S3 upload: {local_file_path} -> s3://{bucket_name}/{s3_key}")
     try:
         s3_client.upload_file(local_file_path, bucket_name, s3_key)
@@ -43,13 +34,8 @@ def upload_raw_dataset_to_s3(local_file_path: str, bucket_name: str, s3_key: str
         raise e
 
 
-# ------------------------------------------------------------------------------
-# 3. ATHENA EXTERNAL TABLE DDL CREATION
-# ------------------------------------------------------------------------------
-def create_athena_table():
-    """
-    Executes DDL on Amazon Athena to define an external table schema over S3 bank marketing data.
-    """
+def create_athena_table() -> None:
+    """Executes DDL on Amazon Athena to define an external table schema over S3 bank marketing data."""
     athena_conn = connect(
         s3_staging_dir=f"s3://{S3_BUCKET_NAME}/{S3_ATHENA_RESULTS_PREFIX}",
         region_name=AWS_REGION
@@ -83,19 +69,16 @@ def create_athena_table():
     """
     
     print("[INFO] Executing DDL for Athena External Table...")
-    with athena_conn.cursor() as cursor:
-        cursor.execute(create_table_ddl)
-    print("[SUCCESS] Athena External Table `bank_marketing_campaign` verified/created.")
+    try:
+        with athena_conn.cursor() as cursor:
+            cursor.execute(create_table_ddl)
+        print("[SUCCESS] Athena External Table `bank_marketing_campaign` verified/created.")
+    finally:
+        athena_conn.close()
 
 
-# ------------------------------------------------------------------------------
-# 4. FINANCIAL ANALYTICAL SQL QUERYING VIA ATHENA & PANDAS
-# ------------------------------------------------------------------------------
 def run_financial_segmentation_query() -> pd.DataFrame:
-    """
-    Executes financial analytics SQL using CTEs and Window Functions (NTILE decile ranking).
-    Calculates deposit subscription conversion rates across balance tiers.
-    """
+    """Executes financial analytics SQL using CTEs and Window Functions (NTILE decile ranking)."""
     athena_conn = connect(
         s3_staging_dir=f"s3://{S3_BUCKET_NAME}/{S3_ATHENA_RESULTS_PREFIX}",
         region_name=AWS_REGION
@@ -141,23 +124,42 @@ def run_financial_segmentation_query() -> pd.DataFrame:
     """
     
     print("[INFO] Running Multi-Tier CTE & Window Function Query via Athena...")
-    df_results = pd.read_sql(analytical_query, athena_conn)
-    print("[SUCCESS] Financial Query Execution Complete.")
-    return df_results
+    try:
+        df_results = pd.read_sql(analytical_query, athena_conn)
+        print("[SUCCESS] Financial Query Execution Complete.")
+        return df_results
+    finally:
+        athena_conn.close()
 
 
-# ------------------------------------------------------------------------------
-# MAIN EXECUTION PIPELINE
-# ------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # Staging paths for Kaggle Bank Marketing Dataset (bank.csv)
-    sample_local_csv = "bank_marketing.csv"
-    s3_target_key = f"{S3_RAW_PREFIX}bank_marketing.csv"
+    # Portable path resolution using pathlib
+    sample_local_csv = Path(__file__).resolve().parent / "bank-full.csv" / "bank-full.csv"
     
-    # Execution workflow:
-    # upload_raw_dataset_to_s3(sample_local_csv, S3_BUCKET_NAME, s3_target_key)
-    # create_athena_table()
-    # df_financial_summary = run_financial_segmentation_query()
-    # print(df_financial_summary.head(10))
-    
-    print("Financial analytics script template validated for GitHub portfolio repository.")
+    if sample_local_csv.exists():
+        df = pd.read_csv(sample_local_csv, sep=";")
+        
+        df['conversion_flag'] = df['y'].apply(lambda x: 1 if x == 'yes' else 0)
+        df['balance_decile'] = pd.qcut(df['balance'], q=10, labels=False, duplicates='drop') + 1
+
+        df_financial_summary = df.groupby('balance_decile').agg(
+            total_customers=('balance', 'count'),
+            min_balance_usd=('balance', 'min'),
+            max_balance_usd=('balance', 'max'),
+            avg_balance_usd=('balance', 'mean'),
+            total_conversions=('conversion_flag', 'sum'),
+            conversion_rate_pct=('conversion_flag', lambda x: round(x.mean() * 100, 2)),
+            avg_outreach_attempts=('campaign', 'mean')
+        ).reset_index()
+
+        df_financial_summary['conversion_rank'] = df_financial_summary['conversion_rate_pct'].rank(
+            ascending=False, method='dense'
+        ).astype(int)
+
+        print(df_financial_summary.head(10))
+        print("Financial analytics script template validated for GitHub portfolio repository.")
+    else:
+        print(f"[WARNING] Local dataset not found at {sample_local_csv}. Ready for cloud Athena execution.")
+
+# Export final aggregated financial summary to CSV for broad compatibility
+df_financial_summary.to_csv("bank_campaign_decile_analysis.csv", index=False)
