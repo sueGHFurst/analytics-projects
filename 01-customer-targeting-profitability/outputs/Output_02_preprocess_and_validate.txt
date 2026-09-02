@@ -1,0 +1,73 @@
+[INFO] Loading raw data files for preprocessing...
+
+----------------- DATA STRUCTURE INSPECTION -----------------
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 41188 entries, 0 to 41187
+Data columns (total 31 columns):
+ #   Column                      Non-Null Count  Dtype
+---  ------                      --------------  -----
+ 0   age                         41188 non-null  int64
+ 1   job                         41188 non-null  object
+ 2   marital                     41188 non-null  object
+ 3   education                   41188 non-null  object
+ 4   default                     41188 non-null  object
+ 5   housing                     41188 non-null  object
+ 6   loan                        41188 non-null  object
+ 7   contact                     41188 non-null  object
+ 8   month                       41188 non-null  object
+ 9   day_of_week                 41188 non-null  object
+ 10  duration                    41188 non-null  int64
+ 11  campaign                    41188 non-null  int64
+ 12  pdays                       41188 non-null  int64
+ 13  previous                    41188 non-null  int64
+ 14  poutcome                    41188 non-null  object
+ 15  emp.var.rate                41188 non-null  float64
+ 16  cons.price.idx              41188 non-null  float64
+ 17  cons.conf.idx               41188 non-null  float64
+ 18  euribor3m                   41188 non-null  float64
+ 19  nr.employed                 41188 non-null  float64
+ 20  y                           41188 non-null  object
+ 21  household_id                41188 non-null  object
+ 22  total_spend                 41188 non-null  float64
+ 23  avg_transaction_amount      41188 non-null  float64
+ 24  transaction_count           41188 non-null  int64
+ 25  login_frequency_monthly     41188 non-null  int64
+ 26  mobile_app_sessions         41188 non-null  int64
+ 27  customer_service_calls_30d  41188 non-null  int64
+ 28  credit_score                41188 non-null  int64
+ 29  debt_to_income_ratio        41188 non-null  float64
+ 30  delinquency_flag_90d        41188 non-null  int64
+dtypes: float64(8), int64(11), object(12)
+memory usage: 9.7+ MB
+None
+
+----------------- STATISTICAL SUMMARY -----------------
+                age     job  marital  ...  credit_score debt_to_income_ratio delinquency_flag_90d
+count   41188.00000   41188    41188  ...  41188.000000         41188.000000         41188.000000
+unique          NaN      12        4  ...           NaN                  NaN                  NaN
+top             NaN  admin.  married  ...           NaN                  NaN                  NaN
+freq            NaN   10422    24928  ...           NaN                  NaN                  NaN
+mean       40.02406     NaN      NaN  ...    699.813149             0.349396             0.079101
+std        10.42125     NaN      NaN  ...     69.357139             0.144349             0.269899
+min        17.00000     NaN      NaN  ...    580.000000             0.100003             0.000000
+25%        32.00000     NaN      NaN  ...    640.000000             0.225070             0.000000
+50%        38.00000     NaN      NaN  ...    701.000000             0.347959             0.000000
+75%        47.00000     NaN      NaN  ...    760.000000             0.474013             0.000000
+max        98.00000     NaN      NaN  ...    819.000000             0.599995             1.000000
+
+[11 rows x 31 columns]
+
+----------------- ANOMALY & EXTREME VALUE CHECK -----------------
+[OUTLIER SCAN] Column 'total_spend': Found 399 extreme rows outside bounds [-447.93, 698.03]
+[OUTLIER SCAN] Column 'credit_score': Found 0 extreme rows outside bounds [280.00, 1120.00]
+[OUTLIER SCAN] Column 'debt_to_income_ratio': Found 0 extreme rows outside bounds [-0.52, 1.22]
+[OUTLIER SCAN] Column 'age': Found 4 extreme rows outside bounds [-13.00, 92.00]
+      household_id  age
+27826     HH_27826   95
+38452     HH_38452   98
+38455     HH_38455   98
+38921     HH_38921   94
+
+[INFO] Applying industry-standard missing value imputation...
+
+[SUCCESS] Processed master dataset saved to C:\Users\User\01-customer-targeting-profitability\data\processed_master_dataset.csv

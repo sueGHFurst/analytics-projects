@@ -1,0 +1,26 @@
+[INFO] Loading modeled master dataset for evaluation...
+[INFO] Training evaluation model and calculating metrics...
+
+----------------- CLASSIFICATION REPORT -----------------
+              precision    recall  f1-score   support
+
+           0       0.90      0.99      0.94      7310
+           1       0.65      0.18      0.28       928
+
+    accuracy                           0.90      8238
+   macro avg       0.78      0.58      0.61      8238
+weighted avg       0.88      0.90      0.87      8238
+
+[METRIC] Test ROC-AUC Score: 0.6509
+[INFO] Generating performance evaluation curves...
+[INFO] Generating feature importance ranking chart...
+
+----------------- SEGMENT PROFITABILITY SUMMARY -----------------
+ segment_cluster  customer_count  avg_total_spend  avg_credit_score  avg_risk_adjusted_clv  avg_delinquency_rate
+               0           16791        73.902145        699.388661              22.433037              0.078673
+               1           12964        80.737251        699.820349              28.389997              0.082151
+               2            2422       574.224900        702.120974             434.379720              0.073906
+               3            9011       275.923124        699.973477             189.018284              0.076906
+
+[SUCCESS] Performance figures successfully saved to: C:\Users\User\01-customer-targeting-profitability\outputs
+[SUCCESS] Dashboard schema exported to: C:\Users\User\01-customer-targeting-profitability\data\dashboard_export_schema.csv
