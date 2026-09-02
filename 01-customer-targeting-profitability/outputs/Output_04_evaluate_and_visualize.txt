@@ -14,6 +14,7 @@ weighted avg       0.88      0.90      0.87      8238
 [METRIC] Test ROC-AUC Score: 0.6509
 [INFO] Generating performance evaluation curves...
 [INFO] Generating feature importance ranking chart...
+[INFO] Generating cumulative gains chart for customer targeting...
 
 ----------------- SEGMENT PROFITABILITY SUMMARY -----------------
  segment_cluster  customer_count  avg_total_spend  avg_credit_score  avg_risk_adjusted_clv  avg_delinquency_rate
@@ -22,5 +23,5 @@ weighted avg       0.88      0.90      0.87      8238
                2            2422       574.224900        702.120974             434.379720              0.073906
                3            9011       275.923124        699.973477             189.018284              0.076906
 
-[SUCCESS] Performance figures successfully saved to: C:\Users\User\01-customer-targeting-profitability\outputs
+[SUCCESS] All evaluation plots successfully saved to: C:\Users\User\01-customer-targeting-profitability\outputs
 [SUCCESS] Dashboard schema exported to: C:\Users\User\01-customer-targeting-profitability\data\dashboard_export_schema.csv
