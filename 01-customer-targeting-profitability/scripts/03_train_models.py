@@ -14,6 +14,9 @@ data_dir = r"C:\Users\User\01-customer-targeting-profitability\data"
 print("[INFO] Loading processed master dataset...")
 df = pd.read_csv(os.path.join(data_dir, "processed_master_dataset.csv"))
 
+# Inspect available columns to ensure safe feature selection
+print(f"[DEBUG] Available columns: {list(df.columns)}")
+
 # ---------------------------------------------------------------------------
 # [AWS CLOUD CONTEXT / MIGRATION NOTE]:
 # In enterprise AWS architectures, model training is typically executed via 
@@ -23,16 +26,21 @@ df = pd.read_csv(os.path.join(data_dir, "processed_master_dataset.csv"))
 
 # 1. Predictive Classification (Cross-Sell / Conversion Target)
 print("[INFO] Training classification models (Logistic Regression, Random Forest, XGBoost)...")
-if 'y' in df.columns:
+target_col = 'y' if 'y' in df.columns else ('target' if 'target' in df.columns else None)
+
+if target_col and target_col == 'y':
     df['target'] = df['y'].apply(lambda x: 1 if str(x).strip().lower() in ['yes', '1', 'true'] else 0)
-else:
+elif not target_col:
     df['target'] = np.random.choice([0, 1], size=len(df), p=[0.88, 0.12])
 
-feature_cols = [
+# Dynamically filter feature columns to include only those present in the dataframe
+candidate_features = [
     'age', 'balance', 'campaign', 'pdays', 'previous', 
     'total_spend', 'transaction_count', 'avg_transaction_amount', 
     'login_frequency_monthly', 'credit_score', 'debt_to_income_ratio'
 ]
+feature_cols = [col for col in candidate_features if col in df.columns]
+print(f"[DEBUG] Using validated feature columns: {feature_cols}")
 
 X = df[feature_cols].copy()
 y = df['target']
@@ -57,7 +65,10 @@ print(f"[SUCCESS] Classification complete. Random Forest Test Accuracy: {rf.scor
 
 # 2. K-Means Customer Segmentation (RFM Features)
 print("[INFO] Executing K-Means clustering on behavioral RFM features...")
-rfm_features = df[['total_spend', 'transaction_count', 'avg_transaction_amount', 'login_frequency_monthly']]
+rfm_candidate_cols = ['total_spend', 'transaction_count', 'avg_transaction_amount', 'login_frequency_monthly']
+rfm_cols = [col for col in rfm_candidate_cols if col in df.columns]
+
+rfm_features = df[rfm_cols].copy()
 scaler_rfm = StandardScaler()
 rfm_scaled = scaler_rfm.fit_transform(rfm_features)
 
@@ -67,11 +78,17 @@ print(f"[SUCCESS] K-Means segmentation complete. Cluster distribution:\n{df['seg
 
 # 3. Survival Analysis (Cox Proportional Hazards for Retention)
 print("[INFO] Fitting Cox Proportional Hazards model for customer retention...")
-np.random.seed(42)
-df['tenure_months'] = np.random.randint(1, 36, size=len(df))
-df['churn_event'] = np.random.choice([0, 1], size=len(df), p=[0.75, 0.25])
+if 'tenure_months' not in df.columns:
+    np.random.seed(42)
+    df['tenure_months'] = np.random.randint(1, 36, size=len(df))
+if 'churn_event' not in df.columns:
+    np.random.seed(42)
+    df['churn_event'] = np.random.choice([0, 1], size=len(df), p=[0.75, 0.25])
 
-cox_data = df[['tenure_months', 'churn_event', 'credit_score', 'debt_to_income_ratio', 'login_frequency_monthly']].dropna()
+cox_candidate_cols = ['tenure_months', 'churn_event', 'credit_score', 'debt_to_income_ratio', 'login_frequency_monthly']
+cox_cols = [col for col in cox_candidate_cols if col in df.columns]
+
+cox_data = df[cox_cols].dropna()
 cph = CoxPHFitter()
 cph.fit(cox_data, duration_col='tenure_months', event_col='churn_event')
 print("[SUCCESS] Cox Proportional Hazards model successfully fitted.")
