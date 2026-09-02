@@ -24,20 +24,44 @@ df_master = df_master.merge(df_credit, on="household_id", how="left")
 
 # ---------------------------------------------------------------------------
 # [AWS CLOUD CONTEXT / MIGRATION NOTE]:
-# In enterprise cloud architectures, missing value imputation rules are often 
-# defined declaratively within a feature store (e.g., AWS SageMaker Feature Store) 
-# or implemented via Spark SQL conditional coalesce logic in an AWS Glue pipeline.
+# In enterprise cloud architectures, exploratory profiling and anomaly detection 
+# are typically executed via automated data quality monitors (e.g., AWS Glue 
+# Data Quality or Amazon Deequ) rather than interactive console logs.
 # ---------------------------------------------------------------------------
 
-print("[INFO] Applying industry-standard missing value imputation...")
+print("\n----------------- DATA STRUCTURE INSPECTION -----------------")
+print(df_master.info())
 
-# 1. Categorical variables -> Impute with a dedicated "Missing" category
+print("\n----------------- STATISTICAL SUMMARY -----------------")
+print(df_master.describe(include='all'))
+
+print("\n----------------- ANOMALY & EXTREME VALUE CHECK -----------------")
+# Identify extreme outliers using the 3.0 * IQR rule for continuous variables
+numeric_check_cols = ['balance', 'total_spend', 'credit_score', 'debt_to_income_ratio', 'age']
+for col in numeric_check_cols:
+    if col in df_master.columns:
+        Q1 = df_master[col].quantile(0.25)
+        Q3 = df_master[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 3.0 * IQR
+        upper_bound = Q3 + 3.0 * IQR
+        
+        extreme_mask = (df_master[col] < lower_bound) | (df_master[col] > upper_bound)
+        extreme_count = extreme_mask.sum()
+        print(f"[OUTLIER SCAN] Column '{col}': Found {extreme_count} extreme rows outside bounds [{lower_bound:.2f}, {upper_bound:.2f}]")
+        
+        if 0 < extreme_count <= 5:
+            print(df_master.loc[extreme_mask, ['household_id', col]])
+
+print("\n[INFO] Applying industry-standard missing value imputation...")
+
+# Categorical variables -> Impute with "Missing"
 categorical_cols = df_master.select_dtypes(include=['object', 'category']).columns.tolist()
 for col in categorical_cols:
     if col != 'household_id':
         df_master[col] = df_master[col].fillna('Missing')
 
-# 2. Count, dummy, and binary indicator variables -> Impute with 0
+# Count, dummy, and binary indicator variables -> Impute with 0
 count_dummy_cols = [
     'transaction_count', 'login_frequency_monthly', 'mobile_app_sessions', 
     'customer_service_calls_30d', 'delinquency_flag_90d', 'previous'
@@ -46,7 +70,7 @@ for col in count_dummy_cols:
     if col in df_master.columns:
         df_master[col] = df_master[col].fillna(0)
 
-# 3. Continuous numeric variables -> Impute with median
+# Continuous numeric variables -> Impute with median
 continuous_cols = [
     'age', 'balance', 'day', 'duration', 'campaign', 'pdays', 
     'total_spend', 'avg_transaction_amount', 'debt_to_income_ratio', 'credit_score'
@@ -63,4 +87,4 @@ assert df_master.isnull().sum().sum() == 0, "Unresolved missing values remain in
 
 output_path = os.path.join(data_dir, "processed_master_dataset.csv")
 df_master.to_csv(output_path, index=False)
-print(f"[SUCCESS] Processed master dataset saved to {output_path}")
+print(f"\n[SUCCESS] Processed master dataset saved to {output_path}")
