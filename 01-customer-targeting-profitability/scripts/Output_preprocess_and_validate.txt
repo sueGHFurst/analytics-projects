@@ -1,0 +1,95 @@
+[INFO] Reading primary dataset from C:\Users\User\00-aws-cloud-sandbox\bank-full.csv...
+Traceback (most recent call last):
+  File "C:\Users\User\01-customer-targeting-profitability\scripts\01_ingest_and_aggregate.py", line 15, in <module>
+    df_primary = pd.read_csv(source_file, sep=";")
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parsers\readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parsers\readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\parsers\readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ~~~~~~~~~~^
+        f,
+        ^^
+    ...<6 lines>...
+        storage_options=self.options.get("storage_options", None),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+        handle,
+    ...<3 lines>...
+        newline="",
+    )
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\User\\00-aws-cloud-sandbox\\bank-full.csv'
+
+C:\Users\User\01-customer-targeting-profitability>python scripts/01_ingest_and_aggregate.py
+[INFO] Downloading primary bank-full.csv dataset...
+[SUCCESS] All self-contained data files successfully generated in 01-customer-targeting-profitability\data\.
+
+C:\Users\User\01-customer-targeting-profitability>python scripts/01_ingest_and_aggregate.py
+[INFO] Downloading primary bank-full.csv dataset...
+[SUCCESS] All self-contained data files successfully generated in 01-customer-targeting-profitability\data\.
+
+C:\Users\User\01-customer-targeting-profitability>python scripts/02_preprocess_and_validate.py
+[INFO] Loading raw data files for preprocessing...
+[INFO] Applying industry-standard missing value imputation...
+[SUCCESS] Processed master dataset saved to C:\Users\User\01-customer-targeting-profitability\data\processed_master_dataset.csv
+
+C:\Users\User\01-customer-targeting-profitability>python scripts/02_preprocess_and_validate.py
+[INFO] Loading raw data files for preprocessing...
+[INFO] Applying industry-standard missing value imputation...
+[SUCCESS] Processed master dataset saved to C:\Users\User\01-customer-targeting-profitability\data\processed_master_dataset.csv
+
+C:\Users\User\01-customer-targeting-profitability>python scripts/02_preprocess_and_validate.py
+[INFO] Loading raw data files for preprocessing...
+
+----------------- DATA STRUCTURE INSPECTION -----------------
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 41188 entries, 0 to 41187
+Data columns (total 11 columns):
+ #   Column                                                                                                                                                                                                                        Non-Null Count  Dtype
+---  ------                                                                                                                                                                                                                        --------------  -----
+ 0   age;"job";"marital";"education";"default";"housing";"loan";"contact";"month";"day_of_week";"duration";"campaign";"pdays";"previous";"poutcome";"emp.var.rate";"cons.price.idx";"cons.conf.idx";"euribor3m";"nr.employed";"y"  41188 non-null  object
+ 1   household_id                                                                                                                                                                                                                  41188 non-null  object
+ 2   total_spend                                                                                                                                                                                                                   41188 non-null  float64
+ 3   avg_transaction_amount                                                                                                                                                                                                        41188 non-null  float64
+ 4   transaction_count                                                                                                                                                                                                             41188 non-null  int64
+ 5   login_frequency_monthly                                                                                                                                                                                                       41188 non-null  int64
+ 6   mobile_app_sessions                                                                                                                                                                                                           41188 non-null  int64
+ 7   customer_service_calls_30d                                                                                                                                                                                                    41188 non-null  int64
+ 8   credit_score                                                                                                                                                                                                                  41188 non-null  int64
+ 9   debt_to_income_ratio                                                                                                                                                                                                          41188 non-null  float64
+ 10  delinquency_flag_90d                                                                                                                                                                                                          41188 non-null  int64
+dtypes: float64(3), int64(6), object(2)
+memory usage: 3.5+ MB
+None
+
+----------------- STATISTICAL SUMMARY -----------------
+       age;"job";"marital";"education";"default";"housing";"loan";"contact";"month";"day_of_week";"duration";"campaign";"pdays";"previous";"poutcome";"emp.var.rate";"cons.price.idx";"cons.conf.idx";"euribor3m";"nr.employed";"y"  ... delinquency_flag_90d
+count                                               41188                                                                                                                                                                            ...         41188.000000
+unique                                              41176                                                                                                                                                                            ...                  NaN
+top     36;"retired";"married";"unknown";"no";"no";"no...                                                                                                                                                                            ...                  NaN
+freq                                                    2                                                                                                                                                                            ...                  NaN
+mean                                                  NaN                                                                                                                                                                            ...             0.079101
+std                                                   NaN                                                                                                                                                                            ...             0.269899
+min                                                   NaN                                                                                                                                                                            ...             0.000000
+25%                                                   NaN                                                                                                                                                                            ...             0.000000
+50%                                                   NaN                                                                                                                                                                            ...             0.000000
+75%                                                   NaN                                                                                                                                                                            ...             0.000000
+max                                                   NaN                                                                                                                                                                            ...             1.000000
+
+[11 rows x 11 columns]
+
+----------------- ANOMALY & EXTREME VALUE CHECK -----------------
+[OUTLIER SCAN] Column 'total_spend': Found 399 extreme rows outside bounds [-447.93, 698.03]
+[OUTLIER SCAN] Column 'credit_score': Found 0 extreme rows outside bounds [280.00, 1120.00]
+[OUTLIER SCAN] Column 'debt_to_income_ratio': Found 0 extreme rows outside bounds [-0.52, 1.22]
+
+[INFO] Applying industry-standard missing value imputation...
+
+[SUCCESS] Processed master dataset saved to C:\Users\User\01-customer-targeting-profitability\data\processed_master_dataset.csv
