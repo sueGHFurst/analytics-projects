@@ -5,7 +5,3 @@ scikit-learn>=1.2.0
 xgboost>=1.7.0
 lifelines>=0.27.0
 seaborn-0.13.2
-
-Installation Command: 
-DOS
-pip install -r requirements.txt
