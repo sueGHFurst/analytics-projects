@@ -1,13 +1,29 @@
-# **Repository Checklist**
+# Repository Checklist
 
-## **README.md:** 
-        - Houses the project overview, visual ASCII architecture diagram, technical tooling, and dual-mode execution instructions.
+- **README.md**
+  - Project overview
+  - Visual ASCII architecture diagram
+  - Technical tooling and dependencies
+  - Dual-mode execution instructions (local and cloud)
 
-## **executive_summary.md:** 
-        - Details the core business insights, peak decile conversion tiers, and DENSE_RANK optimization strategies.
+- **executive_summary.md**
+  - Core business insights
+  - Peak decile conversion analysis
+  - DENSE_RANK optimization strategies
+  - Key recommendations and outcomes
 
-## **requirements.txt:**
-        - Pins exact production library versions (pandas, boto3, pyathena, scikit-learn, lightgbm, statsmodels) for complete reproducibility.
-        
-## **s3_athena_etl_pipeline.py:** 
-        - Delivers the clean, modular Python script supporting both local pandas processing and serverless AWS S3/Athena staging.
+- **requirements.txt**
+  - Pinned production library versions for reproducibility:
+    - pandas
+    - boto3
+    - pyathena
+    - scikit-learn
+    - lightgbm
+    - statsmodels
+
+- **s3_athena_etl_pipeline.py**
+  - Clean, modular ETL pipeline
+  - Local pandas-based processing
+  - AWS S3 data staging
+  - Amazon Athena querying
+  - Enterprise cloud data engineering workflow simulation
