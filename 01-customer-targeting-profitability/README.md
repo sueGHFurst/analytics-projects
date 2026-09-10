@@ -2,7 +2,7 @@
 # Customer Targeting, Churn & Risk-Adjusted CLV Segmentation
 
 ## Overview
-End-to-end predictive analytics framework designed to optimize checking and deposit account acquisition, mitigate customer churn risk, and calculate risk-adjusted Customer Lifetime Value (CLV). Built with a local-first development architecture mirroring enterprise cloud data pipelines.
+An end-to-end predictive analytics framework designed to optimize checking and deposit account acquisition, identify and mitigate customer churn risk, and calculate risk-adjusted Customer Lifetime Value (CLV). This project leverages advanced customer segmentation and predictive modeling techniques to identify customers most likely to churn or default, enabling more effective targeting, retention, and risk management strategies. Built using a local-first development architecture, the solution mirrors enterprise cloud-based data pipelines and analytics workflows.
 
 ## Project Structure
 ```text
