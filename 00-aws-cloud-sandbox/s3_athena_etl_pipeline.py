@@ -130,10 +130,13 @@ def run_athena_consolidation() -> pd.DataFrame:
         SELECT
 
             household_id,
+            last_update_timestamp,
+
             age,
             job,
             marital,
             education,
+
             delinquency_flag_90D,
             churn_event,
             target
@@ -149,6 +152,7 @@ def run_athena_consolidation() -> pd.DataFrame:
         SELECT
 
             household_id,
+
             credit_score,
             debt_to_income_ratio
 
@@ -163,6 +167,7 @@ def run_athena_consolidation() -> pd.DataFrame:
         SELECT
 
             household_id,
+
             login_frequency,
             mobile_app_active,
             digital_engagement_score
@@ -178,6 +183,7 @@ def run_athena_consolidation() -> pd.DataFrame:
         SELECT
 
             household_id,
+
             balance,
             transaction_count,
             avg_transaction_amount,
@@ -194,6 +200,7 @@ def run_athena_consolidation() -> pd.DataFrame:
         SELECT
 
             l.household_id,
+            l.last_update_timestamp,
 
             /* Customer Data */
 
@@ -220,7 +227,7 @@ def run_athena_consolidation() -> pd.DataFrame:
             t.avg_transaction_amount,
             t.total_spend,
 
-            /* Outcome Variables */
+            /* Outcomes */
 
             l.delinquency_flag_90D,
             l.churn_event,
@@ -249,7 +256,7 @@ def run_athena_consolidation() -> pd.DataFrame:
 
                 PARTITION BY household_id
 
-                ORDER BY household_id
+                ORDER BY last_update_timestamp DESC
 
             ) AS row_num
 
@@ -257,7 +264,31 @@ def run_athena_consolidation() -> pd.DataFrame:
 
     )
 
-    SELECT *
+    SELECT
+
+        household_id,
+        last_update_timestamp,
+
+        age,
+        job,
+        marital,
+        education,
+
+        credit_score,
+        debt_to_income_ratio,
+
+        login_frequency,
+        mobile_app_active,
+        digital_engagement_score,
+
+        balance,
+        transaction_count,
+        avg_transaction_amount,
+        total_spend,
+
+        delinquency_flag_90D,
+        churn_event,
+        target
 
     FROM duplicate_check
 
@@ -297,6 +328,22 @@ def run_data_quality_audit(
         "Running Data Quality Audit..."
     )
 
+    missing_values = int(
+        df.isnull().sum().sum()
+    )
+
+    missing_pct = round(
+
+        (
+            missing_values
+            /
+            (len(df) * len(df.columns))
+        ) * 100,
+
+        2
+
+    )
+
     audit_results = pd.DataFrame({
 
         "metric_name": [
@@ -304,23 +351,18 @@ def run_data_quality_audit(
             "total_rows",
             "total_columns",
             "duplicate_records",
-            "missing_values"
+            "missing_values",
+            "missing_value_pct"
 
         ],
 
         "metric_value": [
 
             len(df),
-
             len(df.columns),
-
             int(df.duplicated().sum()),
-
-            int(
-                df.isnull()
-                .sum()
-                .sum()
-            )
+            missing_values,
+            missing_pct
 
         ]
 
@@ -332,7 +374,7 @@ def run_data_quality_audit(
     )
 
     logger.info(
-        "Data quality audit exported."
+        "Data Quality Audit Exported."
     )
 
     return audit_results
@@ -352,8 +394,6 @@ def clean_and_prepare_data(
 
     df = df.copy()
 
-    # Credit Score Validation
-
     if "credit_score" in df.columns:
 
         df = df[
@@ -363,8 +403,6 @@ def clean_and_prepare_data(
             )
         ]
 
-    # DTI Imputation
-
     if "debt_to_income_ratio" in df.columns:
 
         median_dti = (
@@ -373,10 +411,8 @@ def clean_and_prepare_data(
         )
 
         df["debt_to_income_ratio"] = (
-
             df["debt_to_income_ratio"]
             .fillna(median_dti)
-
         )
 
     return df
@@ -396,9 +432,9 @@ def engineer_features(
 
     df = df.copy()
 
-    # ---------------------------------------
+    # -----------------------------
     # Credit Features
-    # ---------------------------------------
+    # -----------------------------
 
     if "credit_score" in df.columns:
 
@@ -437,11 +473,15 @@ def engineer_features(
 
         )
 
-    # ---------------------------------------
+    # -----------------------------
     # Balance Features
-    # ---------------------------------------
+    # -----------------------------
 
-    if "balance" in df.columns:
+    if (
+        "balance" in df.columns
+        and
+        df["balance"].notna().sum() > 0
+    ):
 
         df["balance_decile"] = pd.qcut(
 
@@ -455,9 +495,9 @@ def engineer_features(
 
         ) + 1
 
-    # ---------------------------------------
+    # -----------------------------
     # Transaction Features
-    # ---------------------------------------
+    # -----------------------------
 
     if (
         "total_spend" in df.columns
@@ -472,16 +512,13 @@ def engineer_features(
             /
 
             df["transaction_count"]
-            .replace(
-                0,
-                np.nan
-            )
+            .replace(0, np.nan)
 
         )
 
-    # ---------------------------------------
+    # -----------------------------
     # Digital Activity Features
-    # ---------------------------------------
+    # -----------------------------
 
     if (
         "login_frequency" in df.columns
@@ -515,53 +552,47 @@ def create_feature_summary():
     feature_df = pd.DataFrame([
 
         [
-
             "credit_risk_tier",
             "credit_score",
-            "Credit score grouped into risk bands"
-
+            "pd.cut() risk banding",
+            "Credit score categorized into Poor, Fair, Good, and Excellent risk bands"
         ],
 
         [
-
             "high_dti_flag",
             "debt_to_income_ratio",
-            "Debt-to-income threshold indicator"
-
+            "np.where() threshold flag",
+            "Binary indicator for DTI > 43%"
         ],
 
         [
-
             "balance_decile",
             "balance",
-            "Account balance grouped into 10 equal-size deciles"
-
+            "pd.qcut() decile segmentation",
+            "Account balance grouped into 10 equal-sized customer deciles"
         ],
 
         [
-
             "spend_per_transaction",
             "total_spend / transaction_count",
-            "Average spend per transaction"
-
+            "ratio calculation",
+            "Average customer spend per transaction"
         ],
 
         [
-
             "engagement_score",
             "login_frequency * digital_engagement_score",
-            "Customer engagement metric"
-
+            "multiplicative calculation",
+            "Composite customer engagement measure"
         ]
 
     ],
 
     columns=[
-
         "feature_name",
         "source_attribute",
+        "transformation_logic",
         "description"
-
     ])
 
     feature_df.to_csv(
@@ -580,13 +611,7 @@ if __name__ == "__main__":
         "Starting AWS Cloud Analytics Sandbox ETL..."
     )
 
-    # --------------------------------------------------
-    # Athena Consolidation
-    # --------------------------------------------------
-
     consolidated_df = run_athena_consolidation()
-
-    # Intermediate Consolidated Dataset
 
     consolidated_df.to_csv(
         "bank-full.csv",
@@ -594,28 +619,16 @@ if __name__ == "__main__":
     )
 
     logger.info(
-        "bank-full.csv created."
+        f"bank-full.csv created. Shape: {consolidated_df.shape}"
     )
-
-    # --------------------------------------------------
-    # Data Quality Audit
-    # --------------------------------------------------
 
     run_data_quality_audit(
         consolidated_df
     )
 
-    # --------------------------------------------------
-    # Data Cleaning
-    # --------------------------------------------------
-
     cleaned_df = clean_and_prepare_data(
         consolidated_df
     )
-
-    # --------------------------------------------------
-    # Feature Engineering
-    # --------------------------------------------------
 
     final_df = engineer_features(
         cleaned_df
@@ -623,39 +636,16 @@ if __name__ == "__main__":
 
     create_feature_summary()
 
-    # --------------------------------------------------
-    # Final Analytics Dataset
-    # --------------------------------------------------
-
     final_df.to_csv(
         "final_analytics_ready_dataset.csv",
         index=False
     )
 
-    logger.info(
-        "ETL completed successfully."
-    )
+    logger.info("ETL completed successfully.")
 
-    logger.info(
-        "Outputs generated:"
-    )
-
-    logger.info(
-        " - bank-full.csv"
-    )
-
-    logger.info(
-        " - final_analytics_ready_dataset.csv"
-    )
-
-    logger.info(
-        " - data_quality_audit_summary.csv"
-    )
-
-    logger.info(
-        " - feature_engineering_summary.csv"
-    )
-
-    logger.info(
-        " - pipeline_execution.log"
-    )
+    logger.info("Outputs generated:")
+    logger.info(" - bank-full.csv")
+    logger.info(" - final_analytics_ready_dataset.csv")
+    logger.info(" - data_quality_audit_summary.csv")
+    logger.info(" - feature_engineering_summary.csv")
+    logger.info(" - pipeline_execution.log")
