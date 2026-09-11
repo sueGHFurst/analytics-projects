@@ -170,5 +170,5 @@ Execute the pipeline functions sequentially to:
                               ▼
                  Final Analytics Dataset
 
-                     final_analytics_ready_dataset.csv
+                 final_analytics_ready_dataset.csv
 ```
