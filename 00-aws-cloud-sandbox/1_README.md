@@ -41,26 +41,30 @@ The pipeline submits string-interpolated, multi-statement SQL workloads to Amazo
 - pandas
 - NumPy
 - Advanced Python SQL
-  - Merge Multiple Datasources
+  - Merge Multiple Data Sources
   - Common Table Expressions (CTEs)
   - Window Functions (`NTILE`, `DENSE_RANK`)
-- Python Script
-  - Preprocessing Steps
-    
-- **Final Output:** Clean Analytics Dataset
+- Python Scripts
+  - Data Preprocessing
+  - Feature Engineering
+  - Data Validation
+  - **Final Output:** Clean Analytics Dataset
 
 ### Upcoming Analytics Projects
-- **Predictive Modeling
-      - scikit-learn
-      - Ridge Regression
-      - Random Forest
-      - XGBoost
-      - SciPy
 
-- **Model Validation
-      - statsmodels
-      - k-Fold Cross-Validation
-      - Qini Curve Metrics
+#### Predictive Modeling
+
+- scikit-learn
+- Ridge Regression
+- Random Forest
+- XGBoost
+- SciPy
+
+#### Model Validation
+
+- statsmodels
+- k-Fold Cross-Validation
+- Qini Curve Metrics
 
 ## Getting Started & Execution
 
