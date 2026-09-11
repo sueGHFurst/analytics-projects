@@ -9,17 +9,22 @@ Amazon S3 Data Lake
 Athena External Tables
         ↓
 Athena Consolidation Query
-(LEFT JOIN Integration)
+(CTEs + LEFT JOIN Integration)
         ↓
-Consolidated Analytics Dataset
+Consolidated Base Dataset
+
+bank-full.csv
+
         ↓
+
 Pandas Data Quality Audit
         ↓
 Data Cleaning & Preparation
         ↓
 Feature Engineering
         ↓
-Final Analytics Dataset
+Analytics Data Mart
+        ↓
 
 final_analytics_ready_dataset.csv
 """
@@ -86,7 +91,11 @@ CUSTOMER_TRANSACTIONS_TABLE = (
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline_execution.log"),
+        logging.StreamHandler()
+    ]
 )
 
 logger = logging.getLogger(__name__)
@@ -105,7 +114,7 @@ def get_athena_connection():
 
 
 # ==========================================================
-# MULTI-SOURCE CONSOLIDATION
+# ATHENA MULTI-SOURCE CONSOLIDATION
 # ==========================================================
 
 def run_athena_consolidation() -> pd.DataFrame:
@@ -118,29 +127,65 @@ def run_athena_consolidation() -> pd.DataFrame:
 
     WITH lending_source AS (
 
-        SELECT *
+        SELECT
+
+            household_id,
+            age,
+            job,
+            marital,
+            education,
+            delinquency_flag_90D,
+            churn_event,
+            target
+
         FROM {CUSTOMER_LENDING_TABLE}
+
+        WHERE household_id IS NOT NULL
 
     ),
 
     credit_source AS (
 
-        SELECT *
+        SELECT
+
+            household_id,
+            credit_score,
+            debt_to_income_ratio
+
         FROM {CREDIT_BUREAU_TABLE}
+
+        WHERE household_id IS NOT NULL
 
     ),
 
     digital_source AS (
 
-        SELECT *
+        SELECT
+
+            household_id,
+            login_frequency,
+            mobile_app_active,
+            digital_engagement_score
+
         FROM {DIGITAL_ACTIVITY_TABLE}
+
+        WHERE household_id IS NOT NULL
 
     ),
 
     transaction_source AS (
 
-        SELECT *
+        SELECT
+
+            household_id,
+            balance,
+            transaction_count,
+            avg_transaction_amount,
+            total_spend
+
         FROM {CUSTOMER_TRANSACTIONS_TABLE}
+
+        WHERE household_id IS NOT NULL
 
     ),
 
@@ -148,16 +193,16 @@ def run_athena_consolidation() -> pd.DataFrame:
 
         SELECT
 
-            l.{HOUSEHOLD_KEY},
+            l.household_id,
 
-            /* Demographics */
+            /* Customer Data */
 
             l.age,
             l.job,
             l.marital,
             l.education,
 
-            /* Credit Bureau */
+            /* Credit Bureau Data */
 
             c.credit_score,
             c.debt_to_income_ratio,
@@ -170,11 +215,12 @@ def run_athena_consolidation() -> pd.DataFrame:
 
             /* Banking Transactions */
 
+            t.balance,
             t.transaction_count,
             t.avg_transaction_amount,
             t.total_spend,
 
-            /* Outcomes */
+            /* Outcome Variables */
 
             l.delinquency_flag_90D,
             l.churn_event,
@@ -183,16 +229,13 @@ def run_athena_consolidation() -> pd.DataFrame:
         FROM lending_source l
 
         LEFT JOIN credit_source c
-            ON l.{HOUSEHOLD_KEY}
-             = c.{HOUSEHOLD_KEY}
+            ON l.household_id = c.household_id
 
         LEFT JOIN digital_source d
-            ON l.{HOUSEHOLD_KEY}
-             = d.{HOUSEHOLD_KEY}
+            ON l.household_id = d.household_id
 
         LEFT JOIN transaction_source t
-            ON l.{HOUSEHOLD_KEY}
-             = t.{HOUSEHOLD_KEY}
+            ON l.household_id = t.household_id
 
     ),
 
@@ -203,8 +246,11 @@ def run_athena_consolidation() -> pd.DataFrame:
             *,
 
             ROW_NUMBER() OVER (
-                PARTITION BY {HOUSEHOLD_KEY}
-                ORDER BY {HOUSEHOLD_KEY}
+
+                PARTITION BY household_id
+
+                ORDER BY household_id
+
             ) AS row_num
 
         FROM consolidated_customer_data
@@ -223,10 +269,13 @@ def run_athena_consolidation() -> pd.DataFrame:
 
     try:
 
-        df = pd.read_sql(sql, conn)
+        df = pd.read_sql(
+            sql,
+            conn
+        )
 
         logger.info(
-            f"Consolidation complete. Shape: {df.shape}"
+            f"Consolidation Complete. Shape: {df.shape}"
         )
 
         return df
@@ -254,30 +303,36 @@ def run_data_quality_audit(
 
             "total_rows",
             "total_columns",
-            "duplicate_records"
+            "duplicate_records",
+            "missing_values"
 
         ],
 
         "metric_value": [
 
             len(df),
+
             len(df.columns),
-            int(df.duplicated().sum())
+
+            int(df.duplicated().sum()),
+
+            int(
+                df.isnull()
+                .sum()
+                .sum()
+            )
 
         ]
 
     })
 
     audit_results.to_csv(
-
         "data_quality_audit_summary.csv",
-
         index=False
-
     )
 
     logger.info(
-        "Audit summary exported."
+        "Data quality audit exported."
     )
 
     return audit_results
@@ -297,6 +352,8 @@ def clean_and_prepare_data(
 
     df = df.copy()
 
+    # Credit Score Validation
+
     if "credit_score" in df.columns:
 
         df = df[
@@ -305,6 +362,8 @@ def clean_and_prepare_data(
                 850
             )
         ]
+
+    # DTI Imputation
 
     if "debt_to_income_ratio" in df.columns:
 
@@ -379,6 +438,24 @@ def engineer_features(
         )
 
     # ---------------------------------------
+    # Balance Features
+    # ---------------------------------------
+
+    if "balance" in df.columns:
+
+        df["balance_decile"] = pd.qcut(
+
+            df["balance"],
+
+            q=10,
+
+            labels=False,
+
+            duplicates="drop"
+
+        ) + 1
+
+    # ---------------------------------------
     # Transaction Features
     # ---------------------------------------
 
@@ -395,7 +472,10 @@ def engineer_features(
             /
 
             df["transaction_count"]
-            .replace(0, np.nan)
+            .replace(
+                0,
+                np.nan
+            )
 
         )
 
@@ -406,7 +486,7 @@ def engineer_features(
     if (
         "login_frequency" in df.columns
         and
-        "mobile_app_active" in df.columns
+        "digital_engagement_score" in df.columns
     ):
 
         df["engagement_score"] = (
@@ -415,12 +495,13 @@ def engineer_features(
 
             *
 
-            (
-                df["mobile_app_active"]
-                + 1
-            )
+            df["digital_engagement_score"]
 
         )
+
+    logger.info(
+        f"Feature Engineering Complete. Shape: {df.shape}"
+    )
 
     return df
 
@@ -445,7 +526,15 @@ def create_feature_summary():
 
             "high_dti_flag",
             "debt_to_income_ratio",
-            "DTI threshold indicator"
+            "Debt-to-income threshold indicator"
+
+        ],
+
+        [
+
+            "balance_decile",
+            "balance",
+            "Account balance grouped into 10 equal-size deciles"
 
         ],
 
@@ -453,15 +542,15 @@ def create_feature_summary():
 
             "spend_per_transaction",
             "total_spend / transaction_count",
-            "Average spend efficiency metric"
+            "Average spend per transaction"
 
         ],
 
         [
 
             "engagement_score",
-            "login_frequency + mobile activity",
-            "Customer engagement indicator"
+            "login_frequency * digital_engagement_score",
+            "Customer engagement metric"
 
         ]
 
@@ -476,11 +565,8 @@ def create_feature_summary():
     ])
 
     feature_df.to_csv(
-
         "feature_engineering_summary.csv",
-
         index=False
-
     )
 
 
@@ -494,15 +580,42 @@ if __name__ == "__main__":
         "Starting AWS Cloud Analytics Sandbox ETL..."
     )
 
+    # --------------------------------------------------
+    # Athena Consolidation
+    # --------------------------------------------------
+
     consolidated_df = run_athena_consolidation()
+
+    # Intermediate Consolidated Dataset
+
+    consolidated_df.to_csv(
+        "bank-full.csv",
+        index=False
+    )
+
+    logger.info(
+        "bank-full.csv created."
+    )
+
+    # --------------------------------------------------
+    # Data Quality Audit
+    # --------------------------------------------------
 
     run_data_quality_audit(
         consolidated_df
     )
 
+    # --------------------------------------------------
+    # Data Cleaning
+    # --------------------------------------------------
+
     cleaned_df = clean_and_prepare_data(
         consolidated_df
     )
+
+    # --------------------------------------------------
+    # Feature Engineering
+    # --------------------------------------------------
 
     final_df = engineer_features(
         cleaned_df
@@ -510,12 +623,13 @@ if __name__ == "__main__":
 
     create_feature_summary()
 
+    # --------------------------------------------------
+    # Final Analytics Dataset
+    # --------------------------------------------------
+
     final_df.to_csv(
-
         "final_analytics_ready_dataset.csv",
-
         index=False
-
     )
 
     logger.info(
@@ -527,13 +641,21 @@ if __name__ == "__main__":
     )
 
     logger.info(
-        "  - final_analytics_ready_dataset.csv"
+        " - bank-full.csv"
     )
 
     logger.info(
-        "  - data_quality_audit_summary.csv"
+        " - final_analytics_ready_dataset.csv"
     )
 
     logger.info(
-        "  - feature_engineering_summary.csv"
+        " - data_quality_audit_summary.csv"
+    )
+
+    logger.info(
+        " - feature_engineering_summary.csv"
+    )
+
+    logger.info(
+        " - pipeline_execution.log"
     )
