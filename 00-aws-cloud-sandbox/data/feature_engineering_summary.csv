@@ -1,0 +1,14 @@
+feature_name,source_attribute,transformation_type,transformation_logic,business_purpose,status
+credit_risk_tier,credit_score,Binning,pd.cut() or CASE statement grouping credit scores into risk bands,Standardized creditworthiness classification,Planned
+high_dti_flag,debt_to_income_ratio,Binary Flag,np.where(debt_to_income_ratio > threshold),Identify elevated debt burden accounts,Planned
+loan_age_years,open_date,Derived Metric,(current_date - open_date) / 365.25,Measure account longevity and maturity,Planned
+digital_engagement_score,login_frequency,Normalization,Scaled login frequency and digital activity metrics,Quantify customer engagement behavior,Available
+mobile_app_active,mobile_app_active,Standardization,Normalize binary indicator values (0/1),Support digital behavior analysis,Available
+credit_score,credit_score,Validation,Range validation between 300 and 850,Ensure bureau score integrity,Available
+debt_to_income_ratio,debt_to_income_ratio,Validation,Numeric validation and outlier review,Support future risk analytics,Available
+transaction_count,transaction_count,Validation,Non-negative numeric validation,Support behavioral analysis,Available
+avg_transaction_amount,avg_transaction_amount,Validation,Numeric validation and outlier review,Support spend analysis,Available
+total_spend,total_spend,Validation,Numeric validation and completeness check,Support future profitability analytics,Available
+risk_adjusted_clv,risk_adjusted_clv,Validation,Numeric validation and completeness check,Support future customer value analysis,Available
+delinquency_flag_90D,delinquency_flag_90D,Binary Standardization,Normalize values to 0 or 1,Support future risk modeling,Available
+target,target,Binary Standardization,Normalize values to 0 or 1,Support future predictive modeling,Available
