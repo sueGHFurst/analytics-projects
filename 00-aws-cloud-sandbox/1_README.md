@@ -9,67 +9,64 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
   
 -  Resulting analytics dataset has 45,211 rows and 146 attributes detailing direct telemarketing interactions, credit, and demographic data.
 
-## Data Architecture
+## Data Architecture (Repository Workflow)
 
 ```text
                     AWS CLOUD ANALYTICS SANDBOX
 
-                        Raw Source Data
+                     Amazon S3 Data Lake
+                          (Raw Layer)
 
-     Customer &     Credit Bureau    Digital & Mobile    Banking
-     Lending Data        Data         Activity Data     Transactions
-            \              |               |               /
-             \             |               |              /
-               ▼           ▼               ▼             ▼
-                       Amazon S3 Data Lake
-                            (Raw Layer)
+        ┌──────────────┬──────────────┬──────────────────┬──────────────┐
+        │              │              │                  │
+        ▼              ▼              ▼                  ▼
 
-                                 |
-                                 ▼
+ Customer &      Credit Bureau    Digital & Mobile      Banking
+ Lending Data         Data         Activity Data      Transactions
 
-                      Athena External Tables
+        └──────────────┴──────────────┴──────────────┴──────────────┘
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                   Athena External Tables
 
-                    Athena Consolidation Query
-                       (LEFT JOIN Integration)
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                 Athena Consolidation Query
+                    (LEFT JOIN Integration)
 
-                 Consolidated Analytics Dataset
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+               Consolidated Analytics Dataset
 
-                      Data Quality Audit
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                    Data Quality Audit
 
-                  Data Cleaning & Preparation
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                 Data Cleaning & Preparation
 
-                       Feature Engineering
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                     Feature Engineering
 
-                         Analytics Data Mart
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+                      Analytics Data Mart
 
-               final_analytics_ready_dataset.csv
+                               │
+                               ▼
 
-                                 |
-                                 ▼
+             final_analytics_ready_dataset.csv
+```                     
 
-                         Upcoming Analysis
-```
 
 ## Tooling & Architecture
 
