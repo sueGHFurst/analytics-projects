@@ -109,251 +109,258 @@ WITH customer_deciles AS (
     SELECT
         *,
         NTILE(10) OVER (
-            ORDER BY*balance
-        ) AS balance_decil*
+            ORDER BY balance
+        ) AS balance_decile
     FROM bank_marketing_campaign
-*
+)
 SELECT *
 FROM customer_deciles;
-`*`
+```
 
-Processing activities:
+Processing activities include:
 
-- Custo*er segmentation
-- Feature engineer*ng
+- Customer segmentation
+- Feature engineering
 - Balance decile creation
-- Dat* enrichment
+- Data enrichment
 - Aggregation logic
 
-#*# Step 5: Analytical Ranking
+### Step 5: Analytical Ranking
 
-Cust*mer cohorts are prioritized using *anking methodologies such as:
+Customer cohorts are prioritized using ranking methodologies such as:
 
-```*ql
+```sql
 DENSE_RANK()
 ```
 
-Ranking outpu*s support:
+Ranking outputs support:
 
-- Segment prioritizati*n
+- Segment prioritization
 - Campaign targeting analysis
-- *ustomer-value classification
-- Fin*ncial-tier identification
+- Customer value classification
+- Financial-tier identification
+- Customer performance benchmarking
 
-### Ste* 6: Validation & Output Generation*
-The final transformation layer*produces a clean analytical datase* suitable for:
+### Step 6: Validation & Output Generation
+
+The final transformation layer produces a clean analytical dataset suitable for:
 
 - Reporting
-- Ad h*c analysis
+- Ad hoc analysis
 - Predictive modeling
--*Risk analysis
-- Customer segmentat*on initiatives
+- Risk analysis
+- Customer segmentation initiatives
 
 ---
 
-## Quality Co*trol & Data Validation
+## Quality Control & Data Validation
 
-The ETL wo*kflow incorporates multiple safegu*rds to improve reliability, data i*tegrity, and reproducibility.
+The ETL workflow incorporates multiple safeguards to improve reliability, data integrity, and reproducibility.
 
-###*S3 Exception Handling
+### S3 Exception Handling
 
-Cloud stora*e operations are wrapped within:
+Cloud storage operations are wrapped within:
 
-*``python
+```python
 try:
     ...
-except Excep*ion as e:
+except Exception as e:
     ...
 ```
 
-Protection *ncludes:
+Protection includes:
 
 - Network failures
-- Per*ission issues
+- Permission issues
 - Invalid paths
-- Up*oad errors
-- Unexpected cloud exce*tions
+- Upload errors
+- Unexpected cloud exceptions
 
-### Idempotent DDL Executio*
+### Idempotent DDL Execution
 
 Athena schema deployment uses:
 
-*``sql
-CREATE EXTERNAL TABLE IF NOT*EXISTS
+```sql
+CREATE EXTERNAL TABLE IF NOT EXISTS
 ```
 
 Benefits include:
 
-- R*peatable execution
-- Prevention of*duplicate schemas
-- Simplified env*ronment provisioning
-- Consistent *eployments
+- Repeatable execution
+- Prevention of duplicate schemas
+- Simplified environment provisioning
+- Consistent deployments
 
-### Header Offset Sani*ization
+### Header Offset Sanitization
 
-CSV headers are ignored d*ring Athena ingestion.
+CSV headers are ignored during Athena ingestion.
 
 ```sql
-TBL*ROPERTIES (
-    'skip.header.line.*ount'='1'
+TBLPROPERTIES (
+    'skip.header.line.count'='1'
 )
 ```
 
 This prevents:
 
--*Header contamination
-- Incorrect n*merical aggregations
-- Invalid ana*ytical outputs
+- Header contamination
+- Incorrect numerical aggregations
+- Invalid analytical outputs
 
-### Data Nullity C*ntrols
+### Data Nullity Controls
 
-Data integrity checks excl*de missing values.
+Data integrity checks exclude missing values.
 
 ```sql
-WHERE b*lance IS NOT NULL
+WHERE balance IS NOT NULL
 ```
 
-Benefits in*lude:
+Benefits include:
 
 - Improved data quality
-- C*nsistent calculations
-- Stable ana*ytical outputs
-- Reliable segmenta*ion results
+- Consistent calculations
+- Stable analytical outputs
+- Reliable segmentation results
 
-### Local Path Verifi*ation
+### Local Path Verification
 
-Local execution validates f*le availability before processing.*
+Local execution validates file availability before processing.
+
 ```python
-from pathlib import Pat*
+from pathlib import Path
 
 Path(file_path).exists()
 ```
 
-Th*s prevents:
+This prevents:
 
-- Missing file except*ons
+- Missing file exceptions
 - Failed local executions
-- Ru*time interruptions
+- Runtime interruptions
 
 ---
 
-## Transf*rmed Variables & Analytical Output*
+## Transformed Variables & Analytical Outputs
 
-The ETL process generates transf*rmation-ready variables that suppo*t campaign analysis, customer segm*ntation, and future risk analytics*initiatives.
+The ETL process generates transformation-ready variables that support campaign analysis, customer segmentation, and future risk analytics initiatives.
 
-### Customer Segment*tion Variables
+### Customer Segmentation Variables
 
-- Balance Decile (*NTILE`)
-- Customer Ranking (`DENSE*RANK`)
-- Financial-Tier Classifica*ion
-- Segment-Level Performance Me*rics
+- Balance Decile (`NTILE`)
+- Customer Ranking (`DENSE_RANK`)
+- Financial-Tier Classification
+- Segment-Level Performance Metrics
 
-### Campaign Analysis Variab*es
+### Campaign Analysis Variables
 
 - Customer Contact Frequency
--*Campaign Success Indicators
-- Hist*rical Response Behavior
-- Conversi*n Metrics
+- Campaign Success Indicators
+- Historical Response Behavior
+- Conversion Metrics
 
 ### Analytical Outputs
-*Generated outputs support:
 
-- Cust*mer targeting analysis
-- Campaign *ptimization
-- Conversion propensit* studies
-- Profitability segmentat*on
-- Risk-adjusted customer analys*s
-- Feature engineering for machin* learning
+Generated outputs support:
+
+- Customer targeting analysis
+- Campaign optimization
+- Conversion propensity studies
+- Profitability segmentation
+- Risk-adjusted customer analysis
+- Feature engineering for machine learning
 
 ---
 
-## Workflow Transi*ion Notes
+## Workflow Transition Notes
 
-### Project Lifecycle P*ogression
+### Project Lifecycle Progression
 
-This repository serves *s the foundational AWS cloud engin*ering phase of a broader analytics*portfolio.
+This repository serves as the foundational AWS cloud engineering phase of a broader analytics portfolio.
 
-#### Phase 1: AWS Clou* Analytics Sandbox
+#### Phase 1: AWS Cloud Analytics Sandbox
 
 ```text
-00-aws*cloud-sandbox
+00-aws-cloud-sandbox
 ```
 
 Focus Areas:
 
--*Amazon S3 Data Lake staging
-- Athe*a-based analytics
-- SQL engineerin*
+- Amazon S3 Data Lake staging
+- Athena-based analytics
+- SQL engineering
 - ETL automation
-- Data validatio*
+- Data validation
 
-#### Phase 2: Customer Analytics*& Modeling
+#### Phase 2: Customer Analytics & Modeling
 
 ```text
-01-customer-ta*geting-profitability
+01-customer-targeting-profitability
 ```
 
-Future a*alytical initiatives include:
+Future analytical initiatives include:
 
-- C*stomer targeting
-- Churn predictio*
+- Customer targeting
+- Churn prediction
 - Risk-adjusted CLV segmentation
-* Predictive modeling
-- Uplift mode*ing
+- Predictive modeling
+- Uplift modeling
 - Advanced customer analytics
-*---
-
-## Technology Stack
-
-### AWS *ervices
-
-- Amazon S3
-- Amazon Athe*a
-- AWS Lambda
-- boto3
-
-### Python*Technologies
-
-- Pandas
-- NumPy
-- P*Athena
-
-### SQL Techniques
-
-- Comm*n Table Expressions (CTEs)
-- Windo* Functions
-  - `NTILE()`
-  -*`DENSE_RANK()`
-- Aggregations
-- Ra*king Functions
-- Multi-Source Data*Integration
 
 ---
 
-*# End-to-End Workflow
+## Technology Stack
 
-```text*                    AWS CLOUD ANAL*TICS SANDBOX
+### AWS Services
 
-                  Ra* Marketing Source Data
-           *                    │
-            *                   ▼
-             *       Local File Validation
-     *                          │
-      *                         ▼
-       *               Amazon S3 Data Lake*                                │
-*                               ▼
- *                      Amazon Athen* SQL
-                             *  │
-                              * ▼
-                    Schema Prov*sioning Layer
-                    *           │
-                     *          ▼
-                    Ad*anced SQL Processing
-             *    (CTEs, NTILE, DENSE_RANK)
-    *                           │
-     *                          ▼
-      *             Feature Engineering L*yer
-                              * │
+- Amazon S3
+- Amazon Athena
+- AWS Lambda
+- boto3
+
+### Python Technologies
+
+- Pandas
+- NumPy
+- PyAthena
+
+### SQL Techniques
+
+- Common Table Expressions (CTEs)
+- Window Functions
+  - `NTILE()`
+  - `DENSE_RANK()`
+- Aggregations
+- Ranking Functions
+- Multi-Source Data Integration
+
+---
+
+## End-to-End Workflow
+
+```text
+                    AWS CLOUD ANALYTICS SANDBOX
+
+                  Raw Marketing Source Data
+                                │
+                                ▼
+                     Local File Validation
+                                │
+                                ▼
+                       Amazon S3 Data Lake
+                                │
+                                ▼
+                        Amazon Athena SQL
+                                │
+                                ▼
+                    Schema Provisioning Layer
+                                │
+                                ▼
+                    Advanced SQL Processing
+                  (CTEs, NTILE, DENSE_RANK)
+                                │
+                                ▼
+                    Feature Engineering Layer
+                                │
                                 ▼
                      Analytical Data Mart
                                 │
@@ -368,4 +375,3 @@ Future a*alytical initiatives include:
                                 │
                                 ▼
              Campaign Analysis & Risk Analytics
-```
