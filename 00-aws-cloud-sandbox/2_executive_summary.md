@@ -3,6 +3,16 @@
 - PyAthena
 - Amazon Athena SQL
 - Common Table Expressions (CTEs)
-- Window Functions (`NTILE`, `DENSE_RANK`)
+- Window Functions (`ROW_NUMBER`) for data-quality validation and record deduplication
+
+```sql
+ROW_NUMBER() OVER (
+    PARTITION BY household_id
+    ORDER BY last_update_timestamp DESC
+) AS row_num
+```
+
 - Multi-Source Data Integration
-- Feature Engineering & Dataset Creation
+- Athena External Table Management
+- Data Quality Auditing
+- Feature Engineering & Analytics Dataset Creation
