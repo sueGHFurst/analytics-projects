@@ -143,9 +143,6 @@ Execute the pipeline functions sequentially to:
 ```text
                     AWS CLOUD ANALYTICS SANDBOX
 
-                      Raw Source Files
-                              │
-                              ▼
                      Amazon S3 Data Lake
                               │
                               ▼
