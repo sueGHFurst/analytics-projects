@@ -5,7 +5,9 @@
 Cloud infrastructure sandbox and analytics pipeline designed to stage raw financial datasets, automate serverless ETL workflows, and execute interactive analytical queries.
 
 - **Business Objective:** Model customer conversion probabilities for bank term deposits and evaluate financial tiers using balance decile segmentation (`NTILE`) to optimize direct marketing campaign outreach.
-- **Data Source:** UCI Bank Marketing Campaign Dataset (`bank-full.csv`), featuring 45,211 rows and 17 attributes detailing direct telemarketing interactions.
+- **Data Source:** UCI Bank Marketing Campaign Dataset (`bank-full.csv`) as the base table to merge household_credit, digital_activity, and customer_transactions tables based on primary keys from the merging files.
+  
+-  Resulting analytics dataset has 45,211 rows and 146 attributes detailing direct telemarketing interactions, credit, and demographic data.
 
 ## Data Architecture
 
@@ -139,17 +141,34 @@ Execute the pipeline functions sequentially to:
 ## Repository Workflow
 
 ```text
-Local CSV
-    ↓
-Pandas Validation
-    ↓
-Amazon S3 Data Lake
-    ↓
-Amazon Athena
-    ↓
-SQL Transformations
-    ↓
-Analytical Outputs
-    ↓
-Model Development & Evaluation
+                    AWS CLOUD ANALYTICS SANDBOX
+
+                      Raw Source Files
+                              │
+                              ▼
+                     Amazon S3 Data Lake
+                              │
+                              ▼
+                   Athena External Tables
+                              │
+                              ▼
+                 Athena Consolidation Query
+                   (LEFT JOIN Integration)
+                              │
+                              ▼
+                Consolidated Analytics Dataset
+                              │
+                              ▼
+                 Pandas Data Quality Audit
+                              │
+                              ▼
+                 Data Cleaning & Preparation
+                              │
+                              ▼
+                    Feature Engineering
+                              │
+                              ▼
+                 Final Analytics Dataset
+
+                     final_analytics_ready_dataset.csv
 ```
