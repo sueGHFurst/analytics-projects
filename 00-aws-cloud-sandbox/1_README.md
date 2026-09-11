@@ -12,64 +12,52 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
 ```text
                     AWS CLOUD ANALYTICS SANDBOX
 
-                     Amazon S3 Data Lake
-                          (Raw Layer)
+Customer Data
+        +
+Credit Bureau Data
+        +
+Digital Activity Data
+        +
+Bank Transactions
 
-        ┌──────────────┬──────────────┬──────────────┬──────────────┐
-        │              │              │              │
-        ▼              ▼              ▼              ▼
+                ↓
 
-   Customer       Credit Bureau      Digital       Banking
-      Data             Data          Activity    Transactions
+        Amazon S3 Data Lake
 
-        └──────────────┴──────────────┴──────────────┴──────────────┘
-                               │
-                               ▼
+                ↓
 
-                   Athena External Tables
+      Athena External Tables
 
-                               │
-                               ▼
+                ↓
 
-                 Athena Consolidation Query
-                   (CTEs + LEFT JOIN Logic)
+      Athena Consolidation SQL
+      (CTEs + LEFT JOIN Logic)
 
-                               │
-                               ▼
+                ↓
 
-                    Consolidated Base Dataset
+            bank-full.csv
 
-                           bank-full.csv
+                ↓
 
-                               │
-                               ▼
+      Data Quality Audit
 
-                    Data Quality Audit
+                ↓
 
-                               │
-                               ▼
+      Data Cleaning
 
-                 Data Cleaning & Preparation
+                ↓
 
-                               │
-                               ▼
+      Feature Engineering
 
-                     Feature Engineering
+                ├─ credit_risk_tier
+                ├─ high_dti_flag
+                ├─ balance_decile
+                ├─ spend_per_transaction
+                └─ engagement_score
 
-                               │
-                               ▼
+                ↓
 
-                      Analytics Data Mart
-
-                               │
-                               ▼
-
-              final_analytics_ready_dataset.csv
-
-                               │
-                               ▼
-
-                       Upcoming Analysis                  
+  final_analytics_ready_dataset.csv                 
 
 ```
 
