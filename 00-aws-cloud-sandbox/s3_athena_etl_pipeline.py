@@ -43,12 +43,12 @@ AWS_REGION = os.getenv(
 
 S3_BUCKET = os.getenv(
     "S3_BUCKET",
-    "midwest-lending-analytics"
+    "analytics-sandbox"
 )
 
 ATHENA_DATABASE = os.getenv(
     "ATHENA_DATABASE",
-    "midwest_lending_analytics"
+    "analytics_sandbox"
 )
 
 ATHENA_RESULTS = os.getenv(
@@ -57,6 +57,27 @@ ATHENA_RESULTS = os.getenv(
 )
 
 HOUSEHOLD_KEY = "household_id"
+
+
+# ==========================================================
+# TABLE MACROS
+# ==========================================================
+
+CUSTOMER_LENDING_TABLE = (
+    f"{ATHENA_DATABASE}.customer_lending"
+)
+
+CREDIT_BUREAU_TABLE = (
+    f"{ATHENA_DATABASE}.credit_bureau"
+)
+
+DIGITAL_ACTIVITY_TABLE = (
+    f"{ATHENA_DATABASE}.digital_activity"
+)
+
+CUSTOMER_TRANSACTIONS_TABLE = (
+    f"{ATHENA_DATABASE}.customer_transactions"
+)
 
 
 # ==========================================================
@@ -84,13 +105,13 @@ def get_athena_connection():
 
 
 # ==========================================================
-# ATHENA CONSOLIDATION
+# MULTI-SOURCE CONSOLIDATION
 # ==========================================================
 
 def run_athena_consolidation() -> pd.DataFrame:
 
     logger.info(
-        "Executing Athena multi-source data consolidation..."
+        "Executing Athena multi-source consolidation query..."
     )
 
     sql = f"""
@@ -98,35 +119,28 @@ def run_athena_consolidation() -> pd.DataFrame:
     WITH lending_source AS (
 
         SELECT *
-        FROM {ATHENA_DATABASE}.customer_lending
+        FROM {CUSTOMER_LENDING_TABLE}
 
     ),
 
     credit_source AS (
 
         SELECT *
-        FROM {ATHENA_DATABASE}.credit_bureau
+        FROM {CREDIT_BUREAU_TABLE}
 
     ),
 
     digital_source AS (
 
         SELECT *
-        FROM {ATHENA_DATABASE}.digital_activity
+        FROM {DIGITAL_ACTIVITY_TABLE}
 
     ),
 
     transaction_source AS (
 
         SELECT *
-        FROM {ATHENA_DATABASE}.customer_transactions
-
-    ),
-
-    marketing_source AS (
-
-        SELECT *
-        FROM {ATHENA_DATABASE}.marketing_campaigns
+        FROM {CUSTOMER_TRANSACTIONS_TABLE}
 
     ),
 
@@ -134,7 +148,7 @@ def run_athena_consolidation() -> pd.DataFrame:
 
         SELECT
 
-            l.household_id,
+            l.{HOUSEHOLD_KEY},
 
             /* Demographics */
 
@@ -160,12 +174,7 @@ def run_athena_consolidation() -> pd.DataFrame:
             t.avg_transaction_amount,
             t.total_spend,
 
-            /* Marketing */
-
-            m.campaign,
-            m.previous,
-
-            /* Outcome Variables */
+            /* Outcomes */
 
             l.delinquency_flag_90D,
             l.churn_event,
@@ -174,16 +183,16 @@ def run_athena_consolidation() -> pd.DataFrame:
         FROM lending_source l
 
         LEFT JOIN credit_source c
-            ON l.household_id = c.household_id
+            ON l.{HOUSEHOLD_KEY}
+             = c.{HOUSEHOLD_KEY}
 
         LEFT JOIN digital_source d
-            ON l.household_id = d.household_id
+            ON l.{HOUSEHOLD_KEY}
+             = d.{HOUSEHOLD_KEY}
 
         LEFT JOIN transaction_source t
-            ON l.household_id = t.household_id
-
-        LEFT JOIN marketing_source m
-            ON l.household_id = m.household_id
+            ON l.{HOUSEHOLD_KEY}
+             = t.{HOUSEHOLD_KEY}
 
     ),
 
@@ -194,8 +203,8 @@ def run_athena_consolidation() -> pd.DataFrame:
             *,
 
             ROW_NUMBER() OVER (
-                PARTITION BY household_id
-                ORDER BY household_id
+                PARTITION BY {HOUSEHOLD_KEY}
+                ORDER BY {HOUSEHOLD_KEY}
             ) AS row_num
 
         FROM consolidated_customer_data
@@ -203,6 +212,7 @@ def run_athena_consolidation() -> pd.DataFrame:
     )
 
     SELECT *
+
     FROM duplicate_check
 
     WHERE row_num = 1
@@ -216,7 +226,7 @@ def run_athena_consolidation() -> pd.DataFrame:
         df = pd.read_sql(sql, conn)
 
         logger.info(
-            f"Consolidation Complete. Shape: {df.shape}"
+            f"Consolidation complete. Shape: {df.shape}"
         )
 
         return df
@@ -238,27 +248,39 @@ def run_data_quality_audit(
         "Running Data Quality Audit..."
     )
 
-    audit_results = {
+    audit_results = pd.DataFrame({
 
-        "total_rows": len(df),
+        "metric_name": [
 
-        "total_columns": len(df.columns),
+            "total_rows",
+            "total_columns",
+            "duplicate_records"
 
-        "duplicate_records":
+        ],
+
+        "metric_value": [
+
+            len(df),
+            len(df.columns),
             int(df.duplicated().sum())
-    }
 
-    audit_df = pd.DataFrame(
-        audit_results.items(),
-        columns=["metric_name", "metric_value"]
-    )
+        ]
 
-    audit_df.to_csv(
+    })
+
+    audit_results.to_csv(
+
         "data_quality_audit_summary.csv",
+
         index=False
+
     )
 
-    return audit_df
+    logger.info(
+        "Audit summary exported."
+    )
+
+    return audit_results
 
 
 # ==========================================================
@@ -270,7 +292,7 @@ def clean_and_prepare_data(
 ) -> pd.DataFrame:
 
     logger.info(
-        "Data Cleaning & Preparation..."
+        "Running Data Cleaning & Preparation..."
     )
 
     df = df.copy()
@@ -310,12 +332,14 @@ def engineer_features(
 ) -> pd.DataFrame:
 
     logger.info(
-        "Feature Engineering..."
+        "Running Feature Engineering..."
     )
 
     df = df.copy()
 
-    # Credit Bureau Features
+    # ---------------------------------------
+    # Credit Features
+    # ---------------------------------------
 
     if "credit_score" in df.columns:
 
@@ -354,7 +378,9 @@ def engineer_features(
 
         )
 
+    # ---------------------------------------
     # Transaction Features
+    # ---------------------------------------
 
     if (
         "total_spend" in df.columns
@@ -373,7 +399,9 @@ def engineer_features(
 
         )
 
+    # ---------------------------------------
     # Digital Activity Features
+    # ---------------------------------------
 
     if (
         "login_frequency" in df.columns
@@ -406,27 +434,35 @@ def create_feature_summary():
     feature_df = pd.DataFrame([
 
         [
+
             "credit_risk_tier",
             "credit_score",
-            "Risk Tier"
+            "Credit score grouped into risk bands"
+
         ],
 
         [
+
             "high_dti_flag",
             "debt_to_income_ratio",
-            "DTI Flag"
+            "DTI threshold indicator"
+
         ],
 
         [
+
             "spend_per_transaction",
             "total_spend / transaction_count",
-            "Transaction Efficiency"
+            "Average spend efficiency metric"
+
         ],
 
         [
+
             "engagement_score",
-            "digital activity",
-            "Engagement Metric"
+            "login_frequency + mobile activity",
+            "Customer engagement indicator"
+
         ]
 
     ],
@@ -434,9 +470,7 @@ def create_feature_summary():
     columns=[
 
         "feature_name",
-
         "source_attribute",
-
         "description"
 
     ])
@@ -485,21 +519,21 @@ if __name__ == "__main__":
     )
 
     logger.info(
-        "Final Analytics Dataset Created."
+        "ETL completed successfully."
     )
 
     logger.info(
-        "Outputs:"
+        "Outputs generated:"
     )
 
     logger.info(
-        " - final_analytics_ready_dataset.csv"
+        "  - final_analytics_ready_dataset.csv"
     )
 
     logger.info(
-        " - data_quality_audit_summary.csv"
+        "  - data_quality_audit_summary.csv"
     )
 
     logger.info(
-        " - feature_engineering_summary.csv"
+        "  - feature_engineering_summary.csv"
     )
