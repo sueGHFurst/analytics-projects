@@ -1,37 +1,11 @@
 audit_category,metric_name,metric_value,status,notes
-Dataset Structure,Source Dataset,Midwest Consumer Lending Portfolio,PASS,Analytics source consolidated for risk and portfolio analysis
-Dataset Structure,Total Active Households,226534,PASS,Matches executive dashboard totals
-Dataset Structure,Total Segment Clusters,4,PASS,Clusters 0 through 3 identified
-Portfolio Validation,Total Portfolio Spend,33910000,PASS,Matches executive dashboard aggregate value
-Portfolio Validation,Total Risk Adjusted CLV,19250000,PASS,Matches executive dashboard aggregate value
-Portfolio Validation,Total Delinquent Accounts,17926,PASS,Matches portfolio summary totals
-Portfolio Validation,Portfolio Delinquency Rate,7.91%,PASS,Matches dashboard KPI
-Segment Validation,Cluster 0 Customers,92350,PASS,Validated against dashboard
-Segment Validation,Cluster 1 Customers,71302,PASS,Validated against dashboard
-Segment Validation,Cluster 2 Customers,13321,PASS,Validated against dashboard
-Segment Validation,Cluster 3 Customers,49561,PASS,Validated against dashboard
-Segment Validation,Customer Total Reconciliation,226534,PASS,Cluster totals reconcile to portfolio total
-Segment Validation,Delinquent Total Reconciliation,17926,PASS,Cluster delinquent totals reconcile to portfolio total
-Risk Validation,Cluster 0 Delinquency Rate,7.87%,PASS,Within expected portfolio range
-Risk Validation,Cluster 1 Delinquency Rate,8.22%,PASS,Highest observed portfolio risk tier
-Risk Validation,Cluster 2 Delinquency Rate,7.39%,PASS,Lowest observed portfolio risk tier
-Risk Validation,Cluster 3 Delinquency Rate,7.69%,PASS,Moderate risk profile
-Model Validation,ROC AUC,0.864,PASS,Exceeds 0.80 best-practice threshold
-Model Validation,Precision Recall AUC,0.783,PASS,Strong precision performance
-Model Validation,KS Statistic,0.55,PASS,Within benchmark range 0.50 to 0.58
-Model Validation,Top Decile Capture Rate,81.2%,PASS,Strong concentration of positive responders
-Feature Validation,Tier 1 Feature Count,4,PASS,Core risk variables identified
-Feature Validation,Tier 2 Feature Count,4,PASS,Behavioral and velocity drivers identified
-Feature Validation,Tier 3 Feature Count,2,PASS,Auxiliary marketing variables identified
-Data Quality,Primary Key Presence,household_id,PASS,Unique household identifier present
-Data Quality,Credit Score Validation Range,300-850,PASS,Expected bureau score boundaries
-Data Quality,Debt To Income Validation,Continuous Numeric,PASS,Risk metric available
-Data Quality,Spend Variable Validation,total_spend,PASS,Present and populated
-Data Quality,CLV Variable Validation,risk_adjusted_clv,PASS,Present and populated
-Data Quality,Digital Engagement Validation,login_frequency,PASS,Present and populated
-Data Quality,Target Variable Validation,target,PASS,Target field available for modeling
-Data Quality,Delinquency Variable Validation,delinquency_flag_90D,PASS,Risk outcome available
-Data Quality,Segment Variable Validation,segment_cluster,PASS,Customer segmentation variable available
-Quality Assessment,Schema Consistency,Validated,PASS,Dashboard and documentation metrics reconcile
-Quality Assessment,Portfolio Reconciliation,Validated,PASS,Aggregate totals reconcile across reporting layers
-Quality Assessment,Dataset Ready For Analytics,Yes,PASS,Suitable for downstream modeling and analysis
+Dataset Structure,Total Rows,226534,PASS,Validated source record count
+Dataset Structure,Total Columns,24,PASS,Validated schema field count
+Data Quality,Missing Value Assessment,Completed,PASS,Null-value review executed
+Data Quality,Duplicate Record Check,Completed,PASS,Duplicate review completed
+Data Quality,Data Type Validation,Completed,PASS,Column datatype verification completed
+Data Quality,Primary Key Validation,household_id,PASS,Primary key uniqueness confirmed
+Data Quality,Schema Validation,Completed,PASS,Expected schema verified
+Business Reconciliation,Total Portfolio Spend,33910000,PASS,Portfolio total reconciled
+Business Reconciliation,Total Risk Adjusted CLV,19250000,PASS,CLV total reconciled
+Business Reconciliation,Total Delinquent Accounts,17926,PASS,Delinquent total reconciled
