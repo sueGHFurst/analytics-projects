@@ -9,20 +9,18 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
   
 -  Resulting analytics dataset has 45,211 rows and 146 attributes detailing direct telemarketing interactions, credit, and demographic data.
 
-## Data Architecture (Repository Workflow)
-
 ```text
                     AWS CLOUD ANALYTICS SANDBOX
 
                      Amazon S3 Data Lake
                           (Raw Layer)
 
-        ┌──────────────┬──────────────┬──────────────────┬──────────────┐
-        │              │              │                  │
-        ▼              ▼              ▼                  ▼
+        ┌──────────────┬──────────────┬──────────────┬──────────────┐
+        │              │              │              │
+        ▼              ▼              ▼              ▼
 
- Customer &      Credit Bureau    Digital & Mobile      Banking
- Lending Data         Data         Activity Data      Transactions
+   Customer       Credit Bureau      Digital       Banking
+      Data             Data          Activity    Transactions
 
         └──────────────┴──────────────┴──────────────┴──────────────┘
                                │
@@ -34,12 +32,14 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
                                ▼
 
                  Athena Consolidation Query
-                    (LEFT JOIN Integration)
+                   (CTEs + LEFT JOIN Logic)
 
                                │
                                ▼
 
-               Consolidated Analytics Dataset
+                    Consolidated Base Dataset
+
+                           bank-full.csv
 
                                │
                                ▼
@@ -64,9 +64,14 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
                                │
                                ▼
 
-             final_analytics_ready_dataset.csv
-```                     
+              final_analytics_ready_dataset.csv
 
+                               │
+                               ▼
+
+                       Upcoming Analysis                  
+
+```
 
 ## Tooling & Architecture
 
