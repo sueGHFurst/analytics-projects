@@ -11,17 +11,64 @@ Cloud infrastructure sandbox and analytics pipeline designed to stage raw financ
 
 ## Data Architecture
 
-```mermaid
-graph TD
-    A[Local Environment: bank-full.csv] -->|Dual-Mode Execution| B[Local Mode: Pandas DataFrame Processing]
-    A -->|boto3 Upload| C[Amazon S3 Data Lake: s3://bucket/raw/bank_marketing_data/]
-    C -->|External DDL Schema| D[Amazon Athena: default.bank_marketing_campaign]
-    D -->|PyAthena SQL Execution| E[Multi-Tier CTEs & Window Functions]
+```text
+                    AWS CLOUD ANALYTICS SANDBOX
 
-    subgraph Multi-Source Integration
-        F[Supplementary Client Data] -->|Parameterized Join| D
-        G[Third-Party Bureau / Macro Data] -->|Parameterized Join| D
-    end
+                        Raw Source Data
+
+     Customer &     Credit Bureau    Digital & Mobile    Banking
+     Lending Data        Data         Activity Data     Transactions
+            \              |               |               /
+             \             |               |              /
+               ▼           ▼               ▼             ▼
+                       Amazon S3 Data Lake
+                            (Raw Layer)
+
+                                 |
+                                 ▼
+
+                      Athena External Tables
+
+                                 |
+                                 ▼
+
+                    Athena Consolidation Query
+                       (LEFT JOIN Integration)
+
+                                 |
+                                 ▼
+
+                 Consolidated Analytics Dataset
+
+                                 |
+                                 ▼
+
+                      Data Quality Audit
+
+                                 |
+                                 ▼
+
+                  Data Cleaning & Preparation
+
+                                 |
+                                 ▼
+
+                       Feature Engineering
+
+                                 |
+                                 ▼
+
+                         Analytics Data Mart
+
+                                 |
+                                 ▼
+
+               final_analytics_ready_dataset.csv
+
+                                 |
+                                 ▼
+
+                         Upcoming Analysis
 ```
 
 ## Tooling & Architecture
