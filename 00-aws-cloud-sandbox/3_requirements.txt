@@ -1,7 +1,14 @@
+# Data Processing
 pandas==2.2.0
 numpy==1.26.4
+
+# AWS & Athena Connectivity
 pyathena==3.8.0
 boto3==1.34.0
+
+# Data Profiling & Visualization
 matplotlib==3.8.2
 seaborn==0.13.2
+
+Development Environment
 jupyterlab==4.1.0
