@@ -4,7 +4,7 @@
 
 This document outlines the end-to-end Extract, Transform, Load (ETL) workflow implemented within the AWS Cloud Analytics Sandbox.
 
-The solution leverages Amazon S3, Amazon Athena, PyAthena, and Pandas to integrate multiple enterprise data domains into a consolidated analytics-ready dataset suitable for downstream analytics and machine learning workflows.
+The solution leverages Amazon S3, Amazon Athena, PyAthena, Pandas, Matplotlib, and Seaborn to integrate multiple enterprise data domains into a consolidated, analytics-ready dataset with built-in data quality auditing, variable inventory management, and exploratory data profiling.
 
 ---
 
@@ -16,19 +16,19 @@ The ETL framework provides:
 
 - Environment-driven configuration management
 - Athena External Table management
-- Amazon Athena query execution using PyAthena
-- SQL-based multi-source integration using CTEs
-- Data quality auditing
-- Data cleansing and preparation
-- Feature engineering
-- Analytics-ready dataset creation
+- Amazon Athena query execution using PyAthena[cite: 5]
+- SQL-based multi-source integration using Common Table Expressions (CTEs)[cite: 5]
+- Automated join reconciliation tracking unmatched records across domains[cite: 5]
+- Data quality auditing[cite: 5] and variable inventory generation
+- Exploratory data profiling and visualization generation
+- Data cleansing[cite: 5] and feature engineering
+- Protected artifact export handling[cite: 5]
 
 ---
 
 ## Source Data Domains
 
 ### Customer Data
-
 - Age
 - Job
 - Marital Status
@@ -37,33 +37,27 @@ The ETL framework provides:
 - Churn Indicators
 
 ### Credit Bureau Data
-
 - Credit Score
 - Debt-to-Income Ratio
 
 ### Digital Activity Data
-
 - Login Frequency
 - Mobile Application Activity
 - Digital Engagement Score
 
 ### Banking Transactions Data
-
 - Account Balance
 - Transaction Count
 - Average Transaction Amount
 - Total Spend
-- Risk-Adjusted CLV
+- Risk-Adjusted CLV[cite: 5]
 
 ---
 
 ## ETL Processing Flow
 
 ### Step 1: Amazon S3 Data Lake
-
-Raw source datasets reside in Amazon S3.
-
-Example structure:
+Raw source datasets reside in Amazon S3 under structured paths.
 
 ```text
 s3://analytics-sandbox/raw/customer_lending/
@@ -73,126 +67,49 @@ s3://analytics-sandbox/raw/customer_transactions/
 ```
 
 ### Step 2: Athena Schema Provisioning
-
-External table definitions are provisioned using:
+External table definitions are provisioned using idempotent DDL:
 
 ```sql
 CREATE EXTERNAL TABLE IF NOT EXISTS
 ```
 
-Benefits:
-
-- Schema-on-read architecture
-- Repeatable deployments
-- Environment reproducibility
-- Serverless analytics enablement
-
 ### Step 3: Athena Consolidation Query
+Multiple source systems are integrated through Common Table Expressions (CTEs) utilizing `LEFT JOIN` operations and domain filtering[cite: 5].
 
-Multiple source systems are integrated through Common Table Expressions (CTEs).
-
-Source CTEs include:
-
-- `lending_source`
-- `credit_source`
-- `digital_source`
-- `transaction_source`
-
-The final integration layer creates:
-
-```sql
-consolidated_customer_data
-```
-
-using SQL-based `LEFT JOIN` integration.
-
-### Step 4: Consolidated Base Dataset
-
-Athena produces a consolidated customer-level dataset:
+### Step 4: Consolidated Base Dataset Snapshot
+Athena produces a raw customer-level base snapshot exported securely[cite: 5]:
 
 ```text
 bank-full.csv
 ```
 
-### Step 5: Data Quality Audit
+### Step 5: Data Quality Audit & Variable Inventory
+Validation procedures verify record counts, duplicate households, missing values, invalid credit scores (300–850), and negative balances[cite: 5], alongside generating a complete variable inventory dictionary.
 
-Validation procedures verify:
+### Step 6: Exploratory Data Profiling Visualizations
+Automated generation of diagnostic plots using Matplotlib and Seaborn with a non-interactive backend (`Agg`):
 
-- Record counts
-- Duplicate households
-- Missing values
-- Invalid credit scores
-- Negative balances
-- Distinct household counts
+- `credit_score_distribution.png`
+- `balance_distribution.png`
+- `missing_values_heatmap.png`
+- `credit_risk_tier_distribution.png`
+- `balance_decile_distribution.png`
 
-Outputs:
-
-```text
-data_quality_audit_summary.csv
-```
-
-```text
-data_quality_column_summary.csv
-```
-
-```text
-descriptive_statistics.csv
-```
-
-### Step 6: Data Cleaning & Preparation
-
-Data preparation procedures include:
-
-- Numeric type validation (`pd.to_numeric`)
-- Credit-score validation (300–850)
-- Missing-value remediation
-- Debt-to-income imputation
-- Business-rule filtering
-
-### Step 7: Feature Engineering
-
-#### Credit Features
-
-- Credit Risk Tier
-- Credit Score Decile
-- High Debt-to-Income Flag
-
-#### Financial Features
-
-- Balance Decile
-- Spend Per Transaction
-- Risk-Adjusted CLV
-
-#### Digital Activity Features
-
-- Engagement Score
-
-#### Operational Features
-
-- ETL Run Date
+### Step 7: Data Cleaning & Feature Engineering
+Data preparation and feature engineering execute domain transformations including credit risk tiers, decile segmentations, debt-to-income flags, and normalized engagement scores.
 
 ### Step 8: Analytics Dataset Creation
-
-Final output:
+Final output protection and export[cite: 5]:
 
 ```text
 final_analytics_ready_dataset.csv
 ```
-
-Suitable for:
-
-- Reporting
-- Exploratory Data Analysis (EDA)
-- Feature validation
-- Customer analytics
-- Machine learning preparation
 
 ---
 
 ## Quality Control & Data Validation
 
 ### Athena Connection Validation
-
 ```python
 try:
     conn = get_athena_connection()
@@ -200,46 +117,13 @@ except Exception as e:
     ...
 ```
 
-### Idempotent DDL Execution
+### Join Reconciliation Monitoring
+Tracks and logs unmatched records across key domain attributes (`credit_score`, `login_frequency`, `balance`)[cite: 5].
 
-```sql
-CREATE EXTERNAL TABLE IF NOT EXISTS
-```
-
-### Header Offset Sanitization
-
-```sql
-TBLPROPERTIES (
-    'skip.header.line.count'='1'
-)
-```
-
-### Data Nullity Controls
-
-```sql
-WHERE household_id IS NOT NULL
-  AND balance IS NOT NULL
-```
-
-### Data Type Validation
-
-```python
-pd.to_numeric(errors='coerce')
-```
-
-### Audit Controls
-
-- Duplicate household validation
-- Missing-value analysis
-- Invalid credit-score checks
-- Negative balance checks
-- Descriptive statistics generation
-
-### Operational Logging
-
-```text
-pipeline_execution.log
-```
+### Data Type & Anomaly Controls
+- Numeric coercion via `pd.to_numeric(errors='coerce')`[cite: 5]
+- Credit score validation bounds (300–850)
+- Negative balance monitoring and DTI ratio threshold checks[cite: 5]
 
 ---
 
@@ -247,13 +131,13 @@ pipeline_execution.log
 
 | Variable | Description |
 |----------|-------------|
-| credit_risk_tier | Credit score grouped into risk bands |
-| credit_score_decile | Credit score grouped into deciles |
-| high_dti_flag | DTI threshold indicator |
-| balance_decile | Balance grouped into deciles |
-| spend_per_transaction | Spend efficiency metric |
-| engagement_score | Normalized engagement metric |
-| risk_adjusted_clv | Customer value metric |
+| credit_risk_tier | Credit score grouped into standard risk bands |
+| credit_score_decile | Credit score grouped into deciles (1–10) |
+| high_dti_flag | Binary DTI threshold indicator (>43%) |
+| balance_decile | Account balance grouped into deciles (1–10) |
+| spend_per_transaction | Behavioral spend efficiency ratio |
+| engagement_score | Normalized multi-factor digital activity score |
+| risk_adjusted_clv | Customer profitability metric[cite: 5] |
 | etl_run_date | ETL execution timestamp |
 
 ---
@@ -261,62 +145,52 @@ pipeline_execution.log
 ## Technology Stack
 
 ### AWS Services
-
 - Amazon S3
 - Amazon Athena
 
 ### Python Technologies
-
-- Pandas
+- Pandas[cite: 5]
 - NumPy
-- PyAthena
+- PyAthena[cite: 5]
+- Matplotlib
+- Seaborn
+- Boto3
 
 ### SQL Techniques
-
-- Common Table Expressions (CTEs)
-- Multi-Source Data Integration
-- Data Filtering
-- Aggregations
+- Common Table Expressions (CTEs)[cite: 5]
+- Multi-Source Join Reconciliation[cite: 5]
+- Data Filtering & Aggregations[cite: 5]
 - Schema Standardization
 
 ---
 
 ## Final Deliverables
 
-### Consolidated Base Dataset
-
+### Datasets
 ```text
 bank-full.csv
-```
-
-### Analytics Dataset
-
-```text
 final_analytics_ready_dataset.csv
 ```
 
-### Data Quality Outputs
-
+### Audit & Inventory Outputs
 ```text
 data_quality_audit_summary.csv
-```
-
-```text
 data_quality_column_summary.csv
-```
-
-```text
+variable_inventory.csv
 descriptive_statistics.csv
-```
-
-### Feature Documentation
-
-```text
 feature_engineering_summary.csv
 ```
 
-### Operational Logging
+### Exploratory Visualizations
+```text
+credit_score_distribution.png
+balance_distribution.png
+missing_values_heatmap.png
+credit_risk_tier_distribution.png
+balance_decile_distribution.png
+```
 
+### Operational Logging
 ```text
 pipeline_execution.log
 ```
@@ -326,95 +200,54 @@ pipeline_execution.log
 ## Workflow Transition Notes
 
 ### Phase 1
-
 ```text
 00-aws-cloud-sandbox
 ```
-
-Focus Areas:
-
-- Amazon S3
-- Athena SQL Engineering
-- Data Integration
-- Data Quality Management
-- Feature Engineering
-- Analytics Dataset Creation
+Focus Areas: Amazon S3, Athena SQL Engineering, Data Integration[cite: 5], Data Quality Management[cite: 5], Feature Engineering, and Exploratory Profiling.
 
 ### Phase 2
-
 ```text
 01-customer-targeting-profitability
 ```
-
-Focus Areas:
-
-- Customer Segmentation
-- Risk Analytics
-- Risk-Adjusted CLV Modeling
-- Churn Prediction
-- Predictive Modeling
-- Uplift Modeling
+Focus Areas: Customer Segmentation, Risk Analytics, Risk-Adjusted CLV Modeling, Churn Prediction, and Predictive Modeling.
 
 ---
 
 ## End-to-End Workflow
 
 ```text
-                    AWS CLOUD ANALYTICS SANDBOX
+                        AWS CLOUD ANALYTICS SANDBOX
 
-                     Amazon S3 Data Lake
+                       Amazon S3 Data Lake
                           (Raw Layer)
 
-        Customer Data
-        Credit Bureau Data
-        Digital Activity Data
-        Banking Transactions Data
-
+        Customer Data | Credit Bureau Data | Digital Activity Data | Banking Transactions Data
                                │
                                ▼
-
-                   Athena External Tables
-
+                    Athena External Tables
                                │
                                ▼
-
-                 Athena Consolidation Query
-                   (CTEs + LEFT JOIN Logic)
-
+                   Athena Consolidation Query
+                    (CTEs + LEFT JOIN Logic)
                                │
                                ▼
-
-                    Consolidated Base Dataset
-
-                           bank-full.csv
-
+                   Consolidated Base Dataset
+                         bank-full.csv
                                │
                                ▼
-
-                    Data Quality Audit
-
+                Data Quality Audit & Variable Inventory
                                │
                                ▼
-
-                 Data Cleaning & Preparation
-
+               Exploratory Data Profiling Charts
                                │
                                ▼
-
-                     Feature Engineering
-
+               Data Cleaning & Feature Engineering
                                │
                                ▼
-
                       Analytics Data Mart
-
+               final_analytics_ready_dataset.csv
                                │
                                ▼
-
-             final_analytics_ready_dataset.csv
-
-                               │
-                               ▼
-
                        Upcoming Analysis
 ```
+>>>>></markdown>
