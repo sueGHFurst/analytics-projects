@@ -2,17 +2,18 @@
 
 ## Overview
 
-Cloud-native ETL pipeline designed to integrate customer, credit bureau, digital activity, and banking transaction data into a consolidated analytics-ready dataset.
+Cloud-native ETL pipeline designed to integrate customer, credit bureau, digital activity, and banking transaction data into a consolidated, analytics-ready dataset with built-in data quality auditing, variable inventory management, and exploratory data profiling.
 
 ## Business Objective
 
 Build a scalable AWS-based data engineering framework that:
 
-- Consolidates multiple enterprise data domains
-- Performs data quality auditing and validation
-- Cleanses and standardizes source data
-- Engineers analytics-ready variables
-- Produces a reusable dataset for downstream analytics and machine learning initiatives
+- Consolidates multiple enterprise data domains using PyAthena and Common Table Expressions (CTEs)
+- Performs rigorous join validation and anomaly monitoring across key data attributes
+- Generates a comprehensive variable inventory (data dictionary) and descriptive statistics
+- Cleanses, standardizes, and executes exploratory feature engineering on source data
+- Produces automated exploratory data visualizations using Matplotlib and Seaborn
+- Outputs protected consolidated and analytics-ready datasets for downstream machine learning and business intelligence initiatives
 
 ---
 
@@ -82,17 +83,17 @@ Build a scalable AWS-based data engineering framework that:
                                │
                                ▼
 
-                    Data Quality Audit
+             Data Quality Audit & Variable Inventory
 
                                │
                                ▼
 
-                 Data Cleaning & Preparation
+              Exploratory Data Profiling Charts
 
                                │
                                ▼
 
-                     Feature Engineering
+             Data Cleaning & Feature Engineering
 
                                │
                                ▼
@@ -109,55 +110,138 @@ Build a scalable AWS-based data engineering framework that:
 
 ## Python-Based SQL Analytics
 
-- PyAthena
-- Amazon Athena SQL
+The AWS Cloud Analytics Sandbox leverages Python and Amazon Athena to execute cloud-native data engineering workflows, including:
+
+- PyAthena connectivity and Amazon Athena SQL execution
 - Common Table Expressions (CTEs)
-- Multi-Source Data Integration using LEFT JOIN operations
-- Athena External Table Management
-- Data Quality Auditing
-- Data Cleaning & Preparation
-- Feature Engineering & Analytics Dataset Creation
+- Multi-source data integration using `LEFT JOIN` operations
+- Athena External Table management
+- Data quality auditing and validation
+- Data cleaning and preparation workflows
+- Exploratory data profiling and visualization
+- Feature engineering and analytics-ready dataset creation
+
+### SQL Design Patterns
+
+The Athena consolidation layer uses:
+
+```sql
+WITH lending_source AS (...),
+     credit_source AS (...),
+     digital_source AS (...),
+     transaction_source AS (...),
+     consolidated_customer_data AS (...)
+
+SELECT *
+FROM consolidated_customer_data
+```
+
+Key capabilities include:
+
+- Schema-on-read processing
+- Multi-domain integration
+- Business-rule filtering
+- Data enrichment through SQL-based transformations
 
 ---
 
 ## Engineered Variables
 
-- Credit Risk Tier
-- Credit Score Decile
-- High Debt-to-Income Flag
-- Balance Decile
-- Spend Per Transaction
-- Engagement Score
-- Risk-Adjusted CLV
-- ETL Run Date
+The ETL workflow generates the following analytical variables:
+
+| Variable | Description |
+|----------|-------------|
+| `credit_risk_tier` | Credit score categorized into risk bands |
+| `credit_score_decile` | Credit score grouped into 10 customer deciles |
+| `high_dti_flag` | Binary debt-to-income threshold indicator |
+| `balance_decile` | Account balance grouped into 10 customer deciles |
+| `spend_per_transaction` | Customer spending efficiency metric |
+| `engagement_score` | Normalized digital engagement metric |
+| `risk_adjusted_clv` | Risk-adjusted customer lifetime value |
+| `etl_run_date` | ETL execution timestamp |
 
 ---
 
 ## Data Quality Controls
 
-The ETL pipeline incorporates:
+The ETL framework incorporates:
 
-- Athena connection validation
-- Idempotent DDL execution
-- Header offset sanitization
+- Athena connection validation and exception handling
+- Environment-driven configuration management
+- Idempotent Athena DDL deployment
+- Header offset sanitization using:
+
+```sql
+TBLPROPERTIES (
+    'skip.header.line.count'='1'
+)
+```
+
 - Null filtering and business-rule validation
-- Numeric data-type validation
+- Numeric data-type coercion (`pd.to_numeric`)
 - Duplicate household detection
 - Missing-value assessment
 - Credit-score validation (300–850)
 - Negative balance monitoring
+- Join reconciliation checks
+- Distinct household tracking
 - Descriptive statistics generation
+- Export validation and protection
 - Operational logging
+
+### Example Data Validation Rules
+
+```sql
+WHERE household_id IS NOT NULL
+  AND balance IS NOT NULL
+```
+
+```python
+df["credit_score"].between(
+    300,
+    850
+)
+```
+
+---
+
+## Exploratory Data Profiling
+
+The pipeline generates automated validation visualizations to help analysts understand source data characteristics.
+
+### Generated Visualizations
+
+```text
+credit_score_distribution.png
+balance_distribution.png
+missing_values_heatmap.png
+credit_risk_tier_distribution.png
+balance_decile_distribution.png
+```
+
+Visualization objectives include:
+
+- Distribution analysis
+- Missing-value assessment
+- Feature validation
+- Outlier inspection
+- Risk-segment understanding
 
 ---
 
 ## Deliverables
 
-### Base Dataset
+### Consolidated Base Dataset
 
 ```text
 bank-full.csv
 ```
+
+Contains:
+
+- Multi-source integrated data
+- Customer-level observations
+- Pre-cleaning consolidated records
 
 ### Analytics Dataset
 
@@ -165,13 +249,62 @@ bank-full.csv
 final_analytics_ready_dataset.csv
 ```
 
+Contains:
+
+- Cleansed records
+- Validated attributes
+- Engineered features
+- Analytics-ready variables
+
 ### Data Quality Outputs
 
 ```text
 data_quality_audit_summary.csv
+```
+
+Contains:
+
+- Total rows
+- Total columns
+- Duplicate households
+- Missing values
+- Invalid credit scores
+- Negative balances
+- Distinct households
+
+```text
 data_quality_column_summary.csv
+```
+
+Contains:
+
+- Column names
+- Missing counts
+- Missing percentages
+
+```text
+variable_inventory.csv
+```
+
+Contains:
+
+- Variable names
+- Data types
+- Missing-value percentages
+- Population counts
+
+```text
 descriptive_statistics.csv
 ```
+
+Contains:
+
+- Count
+- Mean
+- Standard deviation
+- Minimum
+- Maximum
+- Quartiles
 
 ### Feature Documentation
 
@@ -179,11 +312,26 @@ descriptive_statistics.csv
 feature_engineering_summary.csv
 ```
 
+Contains:
+
+- Feature names
+- Source attributes
+- Transformation logic
+- Feature classifications
+
 ### Operational Logging
 
 ```text
 pipeline_execution.log
 ```
+
+Contains:
+
+- Execution status
+- Runtime events
+- Validation results
+- Export notifications
+- Exception messages
 
 ---
 
@@ -199,6 +347,9 @@ pipeline_execution.log
 - Pandas
 - NumPy
 - PyAthena
+- Matplotlib
+- Seaborn
+- Boto3
 
 ### SQL Techniques
 
@@ -207,19 +358,54 @@ pipeline_execution.log
 - Data Filtering
 - Aggregations
 - Schema Standardization
+- Business Rule Enforcement
+
+---
+
+## Repository Deliverables Summary
+
+```text
+bank-full.csv
+
+final_analytics_ready_dataset.csv
+
+data_quality_audit_summary.csv
+
+data_quality_column_summary.csv
+
+variable_inventory.csv
+
+descriptive_statistics.csv
+
+feature_engineering_summary.csv
+
+credit_score_distribution.png
+
+balance_distribution.png
+
+missing_values_heatmap.png
+
+credit_risk_tier_distribution.png
+
+balance_decile_distribution.png
+
+pipeline_execution.log
+```
 
 ---
 
 ## Future Roadmap
 
-The scope of this repository ends with creation of an analytics-ready dataset.
+The scope of this repository concludes with the creation of a validated analytics-ready dataset.
 
 Future projects may leverage these outputs for:
 
-- Customer Segmentation
-- Risk Analytics
+- Customer Segmentation & Profiling
+- Risk Analytics & Credit Scoring Models
 - Risk-Adjusted CLV Modeling
-- Churn Prediction
-- Predictive Modeling
+- Churn Prediction & Retention Campaigns
 - Uplift Modeling
-- Advanced Customer Analytics
+- Advanced Predictive Analytics
+- Enterprise Reporting & Dashboarding
+
+These initiatives are intentionally separated from the AWS Cloud Analytics Sandbox to maintain a clear distinction between data engineering and downstream analytical workflows.
