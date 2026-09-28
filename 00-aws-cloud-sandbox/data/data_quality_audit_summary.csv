@@ -1,6 +1,6 @@
 audit_category,metric_name,metric_value,status,notes
 Dataset Structure,Total Rows,226534,PASS,Validated source record count
-Dataset Structure,Total Columns,24,PASS,Validated schema field count
+Dataset Structure,Total Columns,35+,PASS,Validated schema field count
 Data Quality,Missing Value Assessment,Completed,PASS,Null-value review executed
 Data Quality,Duplicate Record Check,Completed,PASS,Duplicate review completed
 Data Quality,Data Type Validation,Completed,PASS,Column datatype verification completed
