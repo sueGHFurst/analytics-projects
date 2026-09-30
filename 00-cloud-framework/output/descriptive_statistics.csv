@@ -1,0 +1,75 @@
+feature,feature_type,count,mean,median,std,min,max
+household_id,Numeric,226534,113267.00,113267.0,65390.00,1.0,226534.0
+age,Numeric,226534,50.95,51.0,19.34,18.0,84.0
+job,Categorical,226534,,,,"Top: admin.","Unique: 12"
+marital,Categorical,226534,,,,"Top: married","Unique: 3"
+education,Categorical,226534,,,,"Top: secondary","Unique: 4"
+credit_score,Numeric,226534,674.72,675.0,101.11,500.0,849.0
+credit_risk_tier,Categorical,226534,,,,"Top: Prime","Unique: 4"
+credit_score_decile,Numeric,226534,5.50,5.0,2.87,1.0,10.0
+bureau_inquiries_6m,Numeric,226534,1.42,1.0,1.18,0.0,12.0
+revolving_balance,Numeric,226534,5420.12,4800.5,2840.15,0.0,35000.0
+bankruptcy_flag,Binary,226534,0.03,0.0,0.17,0.0,1.0
+public_records_count,Numeric,226534,0.12,0.0,0.38,0.0,6.0
+length_of_credit_history_yrs,Numeric,226534,12.40,11.0,6.80,1.0,45.0
+mortgage_balance,Numeric,226534,142500.00,125000.0,85000.00,0.0,650000.0
+unsecured_loan_balance,Numeric,226534,12400.00,8500.0,11200.00,0.0,95000.0
+income_estimated,Numeric,226534,78500.00,72000.0,32000.00,15000.0,250000.0
+household_size,Numeric,226534,2.40,2.0,1.10,1.0,7.0
+dependents_count,Numeric,226534,0.70,0.0,1.00,0.0,5.0
+homeownership_status,Categorical,226534,,,,"Top: owned","Unique: 3"
+years_at_current_residence,Numeric,226534,6.50,5.0,4.80,0.0,35.0
+primary_bank_relationship_yrs,Numeric,226534,8.20,7.0,5.40,0.0,40.0
+checking_account_active,Binary,226534,0.92,1.0,0.27,0.0,1.0
+savings_account_active,Binary,226534,0.68,1.0,0.47,0.0,1.0
+investment_account_active,Binary,226534,0.24,0.0,0.43,0.0,1.0
+credit_card_active,Binary,226534,0.85,1.0,0.36,0.0,1.0
+housing,Binary,226534,0.55,1.0,0.50,0.0,1.0
+loan,Binary,226534,0.16,0.0,0.37,0.0,1.0
+debt_to_income_ratio,Numeric,226534,0.4989,0.4992,0.2310,0.1000,0.9000
+transaction_count,Numeric,226534,50.0183,50.0000,28.5544,1.0,99.0
+avg_transaction_amount,Numeric,226534,254.9064,255.0954,141.4952,10.0034,499.9990
+total_spend,Numeric,226534,149.6906,90.7859,155.3567,9.9757,1450.2736
+balance,Numeric,226534,4002.85,3238.66,3512.40,-801.0,81200.0
+balance_decile,Numeric,226534,5.50,5.0,2.87,1.0,10.0
+negative_balance_flag,Binary,226534,0.04,0.0,0.20,0.0,1.0
+high_dti_flag,Binary,226534,0.58,1.0,0.49,0.0,1.0
+spend_per_transaction,Numeric,226534,45.20,38.5,28.40,2.0,350.0
+rolling_balance_30d,Numeric,226534,3950.00,3190.0,3400.00,-750.0,78000.0
+rolling_balance_60d,Numeric,226534,3920.00,3150.0,3380.00,-700.0,76000.0
+rolling_balance_90d,Numeric,226534,3900.00,3120.0,3350.00,-650.0,75000.0
+cash_advance_count,Numeric,226534,0.45,0.0,0.95,0.0,12.0
+overdraft_fee_count,Numeric,226534,0.22,0.0,0.65,0.0,10.0
+delinquency_flag_90D,Binary,226534,0.0791,0.0,0.2699,0.0,1.0
+nsf_count_12m,Numeric,226534,0.35,0.0,0.82,0.0,8.0
+direct_deposit_active,Binary,226534,0.78,1.0,0.41,0.0,1.0
+automatic_payment_active,Binary,226534,0.45,0.0,0.50,0.0,1.0
+contact,Categorical,226534,,,,"Top: cellular","Unique: 2"
+month,Categorical,226534,,,,"Top: may","Unique: 12"
+duration,Numeric,226534,502.3046,502.0000,287.0992,5.0,999.0
+campaign,Numeric,226534,5.0018,5.0000,2.5784,1.0,9.0
+mobile_app_active,Binary,226534,0.7004,1.0,0.4581,0.0,1.0
+login_frequency,Numeric,226534,9.2002,9.0,3.9499,1.0,30.0
+push_notification_opt_in,Binary,226534,0.62,1.0,0.48,0.0,1.0
+paperless_billing_flag,Binary,226534,0.81,1.0,0.39,0.0,1.0
+online_bill_pay_active,Binary,226534,0.54,1.0,0.50,0.0,1.0
+support_ticket_count_12m,Numeric,226534,0.85,1.0,1.10,0.0,14.0
+pdays,Numeric,226534,40.50,0.0,100.20,-1.0,999.0
+previous,Numeric,226534,0.58,0.0,1.62,0.0,51.0
+poutcome,Categorical,226534,,,,"Top: unknown","Unique: 4"
+emp_var_rate,Numeric,226534,-1.80,-1.8,1.57,-3.4,1.4
+cons_price_idx,Numeric,226534,93.575,93.444,0.578,92.201,94.767
+cons_conf_idx,Numeric,226534,-40.50,-42.0,4.62,-50.8,-26.9
+euribor3m,Numeric,226534,3.621,4.857,1.734,0.634,5.045
+nr_employed,Numeric,226534,5167.0,5191.0,72.2,4963.6,5228.1
+local_unemployment_rate,Numeric,226534,5.40,5.2,1.40,3.1,9.8
+housing_price_index,Numeric,226534,285.40,282.1,35.60,210.0,380.0
+msa_median_income,Numeric,226534,74200.0,71500.0,18200.0,42000.0,135000.0
+state_tax_rate,Numeric,226534,0.052,0.050,0.018,0.0,0.11
+gdp_growth_rate,Numeric,226534,0.022,0.021,0.015,-0.04,0.07
+churn_event,Binary,226534,0.1499,0.0,0.3570,0.0,1.0
+target,Binary,226534,0.2007,0.0,0.4005,0.0,1.0
+propensity_score,Numeric,226534,0.2010,0.18,0.1540,0.01,0.98
+default_probability,Numeric,226534,0.0850,0.042,0.1120,0.0,0.95
+risk_score,Numeric,226534,620.50,630.0,85.40,300.0,850.0
+retention_probability,Numeric,226534,0.7990,0.85,0.2100,0.02,1.00

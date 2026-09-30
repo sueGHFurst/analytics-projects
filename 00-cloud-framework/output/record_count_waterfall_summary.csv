@@ -1,0 +1,9 @@
+ETL Step / Stage,Description,Record Count,Delta
+Cloud Pull 1: Campaign Execution,Outbound marketing campaign parameters & demographic cloud staging.,378412,378412
+Cloud Pull 2: Response Logs,Post-campaign response telemetry & digital activity cloud logs.,489215,489215
+Combined Raw Blend,Multi-source cloud records merged via Athena CTEs & LEFT JOIN logic.,310245,households
+Step 1: Deduplication,Removal of duplicate household records (household_id grain).,305112,-5133
+Step 2: Zero Imputation,Systematic zero-imputation updating missing values across telemetry columns.,305112,0
+Step 3: Logical Bounding,Enforcement of hard business rules and median substitution.,302140,-2972
+Step 4: Winsorization,Soft-capping of extreme financial anomalies (bank-full.csv base dataset).,299332,-2808
+Step 5: Active Cohort,Restriction to active respondents (target = 1) for modeling (final_analytics_ready_dataset.csv).,226534,-72798
