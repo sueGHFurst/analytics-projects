@@ -152,6 +152,29 @@ Create a modeling-ready household-level dataset containing 165 variables.
 - project01_handoff.json
 
 ---
+## Project Deliverables
+### Customer Feature Store
+**bank_full.csv**
+
+* 299,332 customer records
+* Core90 enterprise feature schema
+* Customer-level analytical dataset
+* Credit, behavioral, transaction, and digital engagement features
+### Analytics Ready Dataset
+final_analytics_ready_dataset.csv
+
+* 226,534 active customer households
+* Customer and household analytical features
+* Modeling-ready dataset supporting Project 01
+
+### Supporting Artifacts
+* data_dictionary.csv
+* validation_report.csv
+* hash_manifest.csv
+* run_metadata.json
+* project01_handoff.json
+
+---
 
 ## Feature Categories
 
