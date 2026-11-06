@@ -127,32 +127,6 @@ Create a modeling-ready household-level dataset containing 165 variables.
 ---
 
 ## Project Deliverables
-
-### Customer Feature Store
-
-**bank_full.csv**
-
-- 299,332 customer records
-- 145 engineered features
-- Customer-level analytical dataset
-
-### Analytics-Ready Dataset
-
-**final_analytics_ready_dataset.csv**
-
-- 226,534 household records
-- 165 analytical features
-- Modeling-ready dataset
-
-### Supporting Artifacts
-
-- data_dictionary.csv
-- validation_report.csv
-- hash_manifest.csv
-- project01_handoff.json
-
----
-## Project Deliverables
 ### Customer Feature Store
 **bank_full.csv**
 
