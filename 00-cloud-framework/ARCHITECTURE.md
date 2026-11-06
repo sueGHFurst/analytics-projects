@@ -1,182 +1,177 @@
-# Cloud Analytics Foundation Architecture
+# Cloud Analytics Framework Architecture
 
 ## Purpose
 
-This document describes the cloud-native architecture supporting the creation of enterprise-grade analytical feature stores for customer segmentation, propensity modeling, churn prediction, and marketing optimization.
+This document describes the logical analytics architecture supporting the creation of enterprise analytical datasets used for customer intelligence, segmentation, credit risk analysis, propensity modeling, profitability optimization, and Project 01 downstream modeling.
+
+> This architecture represents a cloud-compatible analytics framework developed for portfolio and educational purposes. The workflow can be deployed to AWS, Azure, Snowflake, Databricks, or similar cloud analytics environments while being demonstrated locally for reproducibility and governance validation.
 
 ---
 
 ## Architecture Overview
 
 ```text
-Raw Cloud Data Sources
+Bank Marketing Data
+Credit Bureau Data
+Digital Activity Data
+Transaction Data
         │
         ▼
-Amazon S3 Data Lake
+Data Quality & Validation
         │
         ▼
-Amazon Athena
-(SQL Extraction & Consolidation)
+Customer Master Dataset
         │
         ▼
-Python
-(Data Preparation & Feature Engineering)
+Household Analytics Engine
         │
         ▼
-Enterprise Feature Store
-(bank_full.parquet)
+Feature Engineering
         │
         ▼
-Analytics Feature Store
-(analytics_feature_store.parquet)
+Customer Feature Store
+(bank_full.csv)
+299,332 Records
+Core90 Enterprise Feature Schema
         │
         ▼
-Advanced Analytics
-├── Customer Segmentation
-├── Propensity Modeling
-├── Churn Prediction
-├── Risk-Adjusted CLV
-└── Campaign Optimization
+Analytics Ready Dataset
+(final_analytics_ready_dataset.csv)
+226,534 Active Customer Households
+        │
+        ▼
+Project 01
+Customer Targeting &
+Profitability Engine
 ```
 
 ---
 
-## Cloud Components
+# Data Domains
 
-### Amazon S3
+## Bank Marketing Data
 
-Purpose:
+### Purpose
 
-- Cloud data lake
-- Persistent storage
-- Source system repository
+Provide customer demographic information and campaign response history.
 
-Responsibilities:
+### Examples
 
-- Campaign execution logs
-- Customer datasets
-- Digital engagement telemetry
-- Credit bureau extracts
+- Age
+- Job
+- Marital Status
+- Education
+- Contact History
+- Campaign Activity
+- Previous Outcome
+- Response Flag
 
----
+### Business Contribution
 
-### Amazon Athena
-
-Purpose:
-
-- Serverless SQL processing
-- Cloud-based extraction layer
-- Multi-domain consolidation
-
-Responsibilities:
-
-- CTE processing
-- Multi-table joins
-- Data filtering
-- Initial transformations
+- Customer segmentation
+- Campaign effectiveness analysis
+- Response propensity modeling
 
 ---
 
-### Python Analytics Layer
+## Credit Bureau Data
 
-Purpose:
+### Purpose
 
-- Data preparation
-- Statistical processing
-- Feature engineering
+Provide creditworthiness and financial risk indicators.
 
-Responsibilities:
+### Examples
 
-- Deduplication
+- Credit Score
+- Debt-to-Income Ratio
+- Delinquency Indicators
+- Credit Utilization
+- Inquiry Counts
+- Risk Segments
+
+### Business Contribution
+
+- Credit risk analysis
+- Customer qualification
+- Risk-adjusted marketing strategies
+
+---
+
+## Digital Activity Data
+
+### Purpose
+
+Measure customer engagement and channel behavior.
+
+### Examples
+
+- Login Frequency
+- Website Sessions
+- Mobile Application Usage
+- Communication Responses
+- Digital Engagement Scores
+
+### Business Contribution
+
+- Customer intelligence
+- Channel optimization
+- Customer engagement analysis
+
+---
+
+## Transaction Data
+
+### Purpose
+
+Provide financial behavior and profitability information.
+
+### Examples
+
+- Transaction Counts
+- Spending Activity
+- Deposit Activity
+- Account Balances
+- Revenue Metrics
+
+### Business Contribution
+
+- Profitability analysis
+- Customer value measurement
+- Customer lifetime value modeling
+
+---
+
+# Data Processing Framework
+
+## Step 1 — Data Integration
+
+Combine customer, credit, behavioral, and transaction domains into a consolidated analytics framework.
+
+### Activities
+
+- Source consolidation
+- Key alignment
+- Relationship validation
+- Customer matching
+
+---
+
+## Step 2 — Data Quality Validation
+
+Apply governance and quality-control procedures.
+
+### Controls
+
+- Duplicate detection
 - Missing value treatment
-- Logical bounds validation
-- Winsorization
-- Feature engineering
-- Quality validation
+- Range validation
+- Business-rule validation
+- Consistency checks
 
----
+### Examples
 
-## Feature Store Architecture
-
-### Enterprise Feature Store
-
-File:
-
-```text
-bank_full.parquet
-```
-
-Records:
-
-```text
-299,332
-```
-
-Purpose:
-
-- Enterprise analytical foundation
-- Intermediate feature repository
-- Statistical validation layer
-
----
-
-### Analytics Feature Store
-
-File:
-
-```text
-analytics_feature_store.parquet
-```
-
-Records:
-
-```text
-226,534
-```
-
-Purpose:
-
-- Modeling-ready population
-- Segmentation-ready features
-- Propensity modeling foundation
-
----
-
-## Data Flow
-
-### Step 1
-
-Cloud data extraction via Athena.
-
-### Step 2
-
-Data consolidation through SQL joins and CTEs.
-
-### Step 3
-
-Python-based data preparation and feature engineering.
-
-### Step 4
-
-Enterprise feature store generation.
-
-### Step 5
-
-Analytics feature store generation.
-
-### Step 6
-
-Advanced analytics and model development.
-
----
-
-## Business Outcomes
-
-The resulting architecture supports:
-
-- Customer Segmentation
-- Propensity Modeling
-- Churn Prediction
-- Campaign Optimization
-- Risk-Adjusted CLV Analysis
-- Marketing ROI Measurement
+| Variable | Rule |
+|-----------|-----------|
+| Credit Score | 300–850 |
+| Debt-to-Income Ratio | 0.00–1.00 |
+| Utilization 
