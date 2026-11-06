@@ -116,13 +116,13 @@ Generate:
 - Household analytics
 - Predictive modeling variables
 
-### Step 4: Feature Store Creation
+Step 4: Feature Store Creation
 
-Create a reusable customer-level feature store containing 145 engineered variables.
+Create a reusable customer-level feature store based on a governed Core90 enterprise feature schema spanning customer, credit, behavioral, transaction, product, and risk domains.
 
-### Step 5: Analytics Dataset Construction
+Step 5: Analytics Dataset Construction
 
-Create a modeling-ready household-level dataset containing 165 variables.
+Create a modeling-ready customer and household analytics dataset supporting segmentation, propensity modeling, profitability modeling, customer intelligence, and credit risk analytics.
 
 ---
 
