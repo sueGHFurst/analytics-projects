@@ -1,10 +1,19 @@
 For your portfolio, I would make Project 00 concise, defensible, and focused on what you actually built. Here's the version I'd use as the primary GitHub/portfolio README.
 
-## Project 00
+### Project 00
 ## Cloud Analytics Framework & Customer Intelligence Platform
 
-Version 1.0
-Core90 Enterprise Feature Schema
+**Version:**  1.0
+**Schema:**   Core90 Enterprise Feature Schema
+
+**Primary Deliverables**
+* bank_full.csv (299,332 customer records)
+* final_analytics_ready_dataset.csv (226,534 active customer households)
+* data_dictionary.csv
+* validation_report.csv
+* hash_manifest.csv
+* run_metadata.json
+* project01_handoff.json
 
 ## Overview
 
@@ -81,11 +90,11 @@ Feature Engineering
         │
         ▼
 Feature Store
-(Core90 Enterprise Feature Schema: 145 Features)
+(Core90 Enterprise Feature Schema)
         │
         ▼
 Analytics-Ready Dataset
-(Customer & Household Analytics Layer: 165 Features)
+(Customer & Household Analytics Layer)
         │
         ▼
 Project 01
@@ -154,15 +163,17 @@ final_analytics_ready_dataset.csv
 
 ---
 
-Feature Domains
+## Feature Domains
 The Core90 enterprise feature schema spans:
 
-Customer Demographics
-Account & Balance Information
-Credit & Lending Attributes
-Behavioral & Transaction Activity
-Product Holdings
-Risk & Compliance Indicators
+* Customer Demographics
+* Account & Balance Information
+* Credit & Lending Attributes
+* Behavioral & Transaction Activity
+* Product Holdings
+* Risk & Compliance Indicators
+
+## Engineered Features
 Additional engineered features include:
 
 Credit Score Deciles
