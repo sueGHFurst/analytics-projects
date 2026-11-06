@@ -77,11 +77,11 @@ Feature Engineering
         │
         ▼
 Feature Store
-(145 Features)
+(Core90 Enterprise Feature Schema: 145 Features)
         │
         ▼
 Analytics-Ready Dataset
-(165 Features)
+(Customer & Household Analytics Layer: 165 Features)
         │
         ▼
 Project 01
